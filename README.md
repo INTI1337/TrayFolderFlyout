@@ -24,6 +24,9 @@
 
 **TrayFolderFlyout** возвращает эту функциональность на качественно новом уровне:
 Каждая папка закрепляется на панели задач как независимый значок. При клике на неё мгновенно открывается аккуратное всплывающее окно (Flyout) прямо над иконкой — в точности как системное всплывающее меню скрытых значков трея Windows 11.
+<img width="235" height="128" alt="image" src="https://github.com/user-attachments/assets/7127f0ed-75ea-48cd-b8fd-0045d6e9ef23" />
+<img width="1082" height="724" alt="image" src="https://github.com/user-attachments/assets/ea42964e-e7e8-427e-a2e1-dcec36bbed0b" />
+<img width="377" height="300" alt="image" src="https://github.com/user-attachments/assets/f33efe6f-37c0-4d0a-957a-1ee849b9a331" />
 
 ---
 
