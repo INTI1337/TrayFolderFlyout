@@ -1,85 +1,135 @@
-# 📁 TrayFolderFlyout
-
 <div align="center">
 
-<img src="Assets/app.ico" alt="TrayFolderFlyout Logo" width="96" height="96" />
+<img src="Assets/app.ico" alt="TrayFolderFlyout Logo" width="112" height="112" />
 
-### Кастомные компактные папки на панели задач Windows 11
+# 📁 TrayFolderFlyout
 
-Нативное легковесное десктопное приложение на C# (.NET 8, WPF), возвращающее удобные всплывающие папки-меню на панель задач Windows 11 в фирменном стиле Fluent & Acrylic.
+### Нативные всплывающие папки для панели задач Windows 11
+**Fluent Design • Акриловый блюр (Acrylic) • Мгновенный отклик 1 мс • Чистый Рабочий стол**
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010-0078D4?logo=windows&logoColor=white)](https://github.com/INTI1337/TrayFolderFlyout)
-[![Framework](https://img.shields.io/badge/.NET-8.0--windows-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
-[![UI](https://img.shields.io/badge/UI-Fluent%20Dark%20%7C%20Acrylic-6366F1)](https://github.com/INTI1337/TrayFolderFlyout)
-[![Release](https://img.shields.io/github/v/release/INTI1337/TrayFolderFlyout?color=10B981&label=Release)](https://github.com/INTI1337/TrayFolderFlyout/releases)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/INTI1337/TrayFolderFlyout?style=for-the-badge&color=6366f1)](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/INTI1337/TrayFolderFlyout/total?style=for-the-badge&color=10b981)](https://github.com/INTI1337/TrayFolderFlyout/releases)
+[![Stars](https://img.shields.io/github/stars/INTI1337/TrayFolderFlyout?style=for-the-badge&color=f59e0b)](https://github.com/INTI1337/TrayFolderFlyout/stargazers)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%20x64-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/INTI1337/TrayFolderFlyout)
+[![License](https://img.shields.io/github/license/INTI1337/TrayFolderFlyout?style=for-the-badge&color=ec4899)](LICENSE)
+
+<br/>
+
+### **[📥 Скачать последнюю версию (Setup / Portable)](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)**
+
+<p align="center">
+  <a href="#-таблица-преимуществ"><b>Преимущества</b></a> •
+  <a href="#-как-скачать-и-установить"><b>Установка</b></a> •
+  <a href="#-основные-возможности"><b>Возможности</b></a> •
+  <a href="#-сборка-из-исходного-кода"><b>Сборка</b></a> •
+  <a href="#-english-overview"><b>English Overview 🌐</b></a>
+</p>
 
 </div>
 
 ---
 
-## 💡 Зачем это нужно?
-
-В Windows 11 Microsoft удалила функцию классических инструментальных панелей (Toolbars), из-за чего пользователи лишились возможности закреплять папки с быстрыми ярлыками на панели задач. В результате Рабочий стол захламляется сотнями иконок, а поиск нужной программы через меню «Пуск» или Проводник отнимает время.
-
-**TrayFolderFlyout** возвращает эту функциональность на качественно новом уровне:
-Каждая папка закрепляется на панели задач как независимый значок. При клике на неё мгновенно открывается аккуратное всплывающее окно (Flyout) прямо над иконкой — в точности как системное всплывающее меню скрытых значков трея Windows 11.
-
-
-<img width="1082" height="724" alt="image" src="https://github.com/user-attachments/assets/ea42964e-e7e8-427e-a2e1-dcec36bbed0b" />
+<!-- Вставьте сюда скриншоты через Ctrl+V на GitHub -->
 <div align="center">
-<img width="377" height="300" alt="image" src="https://github.com/user-attachments/assets/f33efe6f-37c0-4d0a-957a-1ee849b9a331" />
+
+<img width="850" alt="TrayFolderFlyout Settings Manager" src="https://github.com/user-attachments/assets/ea42964e-e7e8-427e-a2e1-dcec36bbed0b" />
+
+<br/><br/>
+
+<img width="380" alt="TrayFolderFlyout Taskbar Popup" src="https://github.com/user-attachments/assets/f33efe6f-37c0-4d0a-957a-1ee849b9a331" />
+
+<p><i>Компактное всплывающее меню папки на панели задач и интуитивный менеджер настроек в нативном стиле Windows 11 Fluent Dark</i></p>
+
 </div>
+
+---
+
+## 💡 Зачем нужен TrayFolderFlyout?
+
+В Windows 11 компания Microsoft удалила классические панели инструментов (Toolbars), из-за чего пользователи потеряли возможность закреплять папки с быстрыми ярлыками на панели задач. В результате Рабочий стол захламляется десятками ярлыков, а поиск нужных утилит через меню «Пуск» отнимает лишнее время.
+
+**TrayFolderFlyout** решает эту проблему современным и элегантным путём:
+Каждая папка закрепляется на панели задач Windows 11 как самостоятельная аккуратная иконка. При клике на неё мгновенно всплывает компактное меню (**Flyout**) прямо над значком — визуально и по поведению в точности повторяющее нативное всплывающее меню скрытых значков трея Windows 11.
+
+---
+
+## ⚡ Таблица преимуществ
+
+| Возможность | **TrayFolderFlyout** 📁 | Стандартный Рабочий стол 🪟 | Обычные ярлыки панели задач 📌 |
+| :--- | :---: | :---: | :---: |
+| **Скорость открытия** | **⚡ 1 мс** *(фоновый демон через Named Pipes)* | ⏳ 1–2 сек *(тяжёлый запуск Проводника)* | ❌ Меню отсутствует |
+| **Интеграция со стилем Windows 11** | **✨ Нативный Fluent Acrylic & Mica** | 📁 Стандартное белое окно папки | ❌ Нет всплывающих меню |
+| **Кастомные иконки в панели задач** | **🎨 10 градиентных сквирклов + любые .ico/.png/.exe** | ❌ Стандартная желтая папка | ⚠️ Только оригинальная иконка программы |
+| **«Безымянные папки» (Clean Look)** | **🫥 Да (символ Брайля, чистая иконка без подписи)** | ❌ Невозможно без хаков | ❌ Всегда отображается имя файла |
+| **Автономность ярлыков** | **📦 Да (копирование в `SavedLinks`)** | ❌ Нет *(удалил оригинал — ярлык сломался)* | ❌ Нет |
+| **Интеллектуальное автовосстановление** | **🩹 Да (`Auto-Heal` при перемещении файлов)** | ❌ Нет | ❌ Нет |
+| **Нагрузка на систему** | **🍃 0% CPU, минимум RAM** | — | — |
+| **Чистота рабочего пространства** | **✨ 100% чистый Рабочий стол без мусора** | ❌ Захламлён сотнями значков | ⚠️ Ограниченное число ярлыков в панели |
+
 ---
 
 ## 📥 Как скачать и установить
 
 > [!TIP]
-> Приложение скомпилировано в формате **Self-Contained Single File**: вам **не нужно** устанавливать .NET Runtime или дополнительные библиотеки. Всё уже встроено внутрь и работает «из коробки» на любой Windows 10/11 x64.
+> Приложение скомпилировано в формате **Self-Contained Single File**: вам **не нужно** вручную устанавливать .NET Runtime или сторонние библиотеки. Всё уже встроено в бинарник и запускается на любой Windows 10/11 x64.
 
 ### Вариант 1. Автоматический установщик (Рекомендуется)
-1. Перейдите в блок [**Releases**](https://github.com/INTI1337/TrayFolderFlyout/releases/latest) в правой колонке репозитория.
+1. Перейдите на страницу **[Последнего релиза](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)**.
 2. Скачайте **`TrayFolderFlyout_Setup.exe`**.
-3. Запустите установщик, отметьте нужные пункты:
-   - `[x] Создать ярлык на Рабочем столе`
-   - `[x] Запускать фоновую службу вместе с Windows`
-4. Нажмите **«Установить»** — инсталлятор распакует программу в `%LocalAppData%\Programs\TrayFolderFlyout\`, создаст ярлыки и зарегистрирует приложение в меню «Установленные приложения» Windows.
+3. Запустите установщик и нажмите **«Установить»**:
+   - Приложение установится в папку `%LocalAppData%\Programs\TrayFolderFlyout\`.
+   - Будут созданы удобные ярлыки и запись в системном меню «Установленные приложения».
+   - Фоновая служба автоматически запустится и пропишется в автозагрузку.
 
 ### Вариант 2. Портативная версия (Portable)
-1. В разделе [**Releases**](https://github.com/INTI1337/TrayFolderFlyout/releases/latest) скачайте **`TrayFolderFlyout_Portable.exe`**.
-2. Поместите файл в любую папку и запустите. Никакой установки в систему не требуется, все настройки и кэш хранятся в `%AppData%\TrayFolderFlyout\`.
+1. В разделе **[Releases](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)** скачайте **`TrayFolderFlyout_Portable.exe`** (или `.zip`-архив).
+2. Поместите файл в любую папку и запустите. Программа готова к работе без инсталляции, все пользовательские данные сохраняются в `%AppData%\TrayFolderFlyout\`.
+
+---
+
+> [!IMPORTANT]
+> ### 💡 Примечание при первом запуске (Windows SmartScreen)
+> **TrayFolderFlyout** — это 100% открытый, бесплатный и прозрачный проект (Open Source).
+> 
+> У независимых Open-Source разработчиков нет корпоративного сертификата *Microsoft EV Code Signing* (стоимостью от \$500–1000 ежегодно), поэтому встроенный защитный экран **Windows SmartScreen** при первом запуске нового `.exe` может отобразить стандартное синее окно: *«Система Windows защитила ваш компьютер»*.
+> 
+> **Как продолжить запуск:**
+> 1. В синем окне SmartScreen нажмите ссылку **«Подробнее»** (*More info*).
+> 2. Нажмите появившуюся кнопку **«Выполнить в любом случае»** (*Run anyway*).
+> 
+> 🛡️ *Исходный код приложения полностью открыт для проверки прямо в этом репозитории. Программа не собирает персональные данные и не совершает скрытых сетевых запросов.*
 
 ---
 
 ## ✨ Основные возможности
 
 ### ⚡ 1. Мгновенный отклик за 1 миллисекунду
-- Архитектура **Single-Instance Daemon**: приложение работает в фоне как невидимая служба (0% CPU, минимум RAM) с иконкой в системном трее.
-- При клике на закреплённую папку клиентский процесс за 1 мс передаёт ID группы через асинхронный **Named Pipe** (`TrayFolderFlyout_Pipe`), и заранее инициализированное окно мгновенно отображается на экране.
+- **Архитектура Single-Instance Daemon**: приложение непрерывно работает в фоне как легковесный фоновый процесс (0% CPU, минимум памяти).
+- При нажатии на закреплённый ярлык клиентский процесс мгновенно передает идентификатор группы через локальный асинхронный канал **Named Pipe** (`TrayFolderFlyout_Pipe`). Предзагруженное окно появляется на экране за доли секунды без лагов запуска.
 
-### 🎨 2. Кастомные иконки и 10 сочных пресетов
-- 10 встроенных градиентных сквирклов в палитре Fluent Design: «Игры», «Работа», «Система», «Медиа», «Код», «Дизайн», «Интернет», «Офис», «Безопасность», «Папка».
-- Возможность установить любую собственную иконку или изображение (`.ico`, `.png`, `.jpg`, `.jpeg`, `.bmp`, `.exe`) — они автоматически конвертируются в многослойный `.ico` с поддержкой всех разрешений Windows.
+### 🎨 2. Кастомные иконки и 10 сочных градиентных пресетов
+- 10 встроенных дизайнерских сквирклов в стилистике Fluent Design: «Игры», «Работа», «Система», «Медиа», «Код», «Дизайн», «Интернет», «Офис», «Безопасность», «Папка».
+- Возможность установить собственную картинку или иконку любого формата (`.ico`, `.png`, `.jpg`, `.jpeg`, `.bmp`, `.exe`) — они на лету конвертируются в многослойный `.ico` со всеми системными разрешениями (16x16, 32x32, 48x48, 256x256).
 
 ### 🫥 3. «Безымянные папки» для ультрачистого вида панели задач
-- Если стереть название папки, приложение автоматически генерирует скрытый ярлык с уникальным символом Брайля (`\u2800`). На панели задач отображается только аккуратная иконка без лишнего текста и многоточий.
+- При пустом названии папки программа автоматически подставляет невидимый символ Брайля (`\u2800`). На панели задач закрепляется исключительно красивая иконка без лишних подписей, точек и многоточий.
 
 ### 📦 4. Автономное хранилище ярлыков (`SavedLinks`)
-- При перетаскивании (Drag-and-Drop) файлов и ярлыков в папку приложение копирует сам `.lnk`/`.url` внутрь `%AppData%\TrayFolderFlyout\SavedLinks\`.
-- **Вы можете спокойно удалять исходные ярлыки с Рабочего стола** — папка продолжит стабильно запускать программы.
+- При перетаскивании (Drag-and-Drop) файлов и ярлыков в окно менеджера программа автоматически сохраняет копию `.lnk` / `.url` внутри `%AppData%\TrayFolderFlyout\SavedLinks\`.
+- **Вы можете смело удалять ярлыки с Рабочего стола** — папка продолжит стабильно запускать все ваши программы.
 
 ### 🩹 5. Интеллектуальное автовосстановление (Auto-Heal)
-- Если файлы были перемещены во вложенные каталоги Рабочего стола или Меню «Пуск», встроенный сканер при запуске автоматически найдёт их, восстановит привязку и обновит кэш.
+- Если целевые файлы были перемещены во вложенные подкаталоги или меню «Пуск», встроенный интеллектуальный сканер автоматически найдет их новое расположение и обновит пути.
 
-### 🖼️ 6. Кэширование иконок без «белых листков»
-- Извлечение значков выполняется строго в STA-потоках через нативный Win32 Shell API (`IShellItemImageFactory`, `SHGetFileInfo`, `ExtractIconEx`).
-- Все значки кэшируются в несжатый PNG с честным 32-битным альфа-каналом (прозрачностью) без черных ореолов.
+### 🖼️ 6. Честное извлечение иконок без «белых листков»
+- Извлечение значков выполняется в выделенных STA-потоках через нативный Win32 Shell API (`IShellItemImageFactory`, `SHGetFileInfo`, `ExtractIconEx`).
+- Все иконки кэшируются в 32-битный PNG с честной альфа-прозрачностью без черных полей и графических артефактов.
 
-### 🎛️ 7. Гибкая настройка структуры
+### 🎛️ 7. Гибкая персонализация
 - Сетка от 3 до 6 колонок.
-- Переключение между режимами: «С подписями» (крупные карточки) и «Только иконки» (суперкомпактно).
-- Синхронизация с реальными папками диска (например, автоотображение файлов из папки «Загрузки»).
-- Изменение порядка элементов простым перетаскиванием мыши.
+- Режимы отображения: «С подписями» (комфортные карточки) и «Только иконки» (минималистично и ультракомпактно).
+- Синхронизация с реальными каталогами диска (например, автоотображение файлов из папки «Загрузки»).
+- Изменение порядка элементов простым перетаскиванием мыши (Drag & Drop).
 
 ---
 
@@ -87,19 +137,19 @@
 
 Приложение удаляется стандартно и начисто:
 - **Параметры Windows** → **Приложения** → **Установленные приложения** → **TrayFolderFlyout** → **Удалить**.
-- Либо запуском `Uninstall.exe` в папке программы.
+- Либо запуском `Uninstall.exe` в каталоге программы.
 
-Установщик снимет фоновую службу, удалит ярлыки из системы, очистит ветку автозапуска и запись в реестре.
+Деинсталлятор корректно завершает фоновый процесс, удаляет созданные ярлыки и очищает автозагрузку.
 
 ---
 
 ## 🛠️ Сборка из исходного кода
 
 ### Требования
-- ОС: Windows 10 (версия 1809+) или Windows 11 (x64)
+- ОС: Windows 10 (1809+) или Windows 11 (x64)
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
-### Шаги сборки:
+### Команды сборки:
 
 1. **Клонируйте репозиторий:**
    ```bash
@@ -107,17 +157,15 @@
    cd TrayFolderFlyout
    ```
 
-2. **Соберите основное автономное приложение (Self-Contained):**
+2. **Сборка основного автономного приложения (Portable Single-File):**
    ```bash
    dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -p:DebugSymbols=false -o ./Publish/App
    ```
 
-3. **Соберите установщик `TrayFolderFlyout_Setup.exe`:**
+3. **Сборка установщика `TrayFolderFlyout_Setup.exe`:**
    ```bash
    dotnet publish TrayFolderFlyout.Setup/TrayFolderFlyout.Setup.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o ./Release
    ```
-
-Готовые исполняемые файлы будут доступны в каталоге `./Release/`.
 
 ---
 
@@ -125,17 +173,17 @@
 
 ```
 TrayFolderFlyout/
-├── Assets/                        # Иконка приложения (256x256 Bento grid) и промо-арт
+├── Assets/                        # Иконка приложения (256x256 Bento grid) и стили
 ├── Models/                        # Доменные модели (AppConfig, FolderGroup, FolderItem)
 ├── Native/                        # Win32 P/Invoke, COM IShellLinkW, IShellItemImageFactory
 ├── Services/                      # Сервисы IpcService, ConfigService, IconService, TrayService
-├── Styles/                        # Стили Fluent Dark, шаблоны CheckBox, Button, RadioButton
-├── ViewModels/                    # MVVM связка для живого реактивного интерфейса
+├── Styles/                        # Стили Fluent Dark, шаблоны элементов управления
+├── ViewModels/                    # MVVM связка для реактивного интерфейса
 ├── Views/                         # FlyoutWindow (попап), IconPickerWindow, InputDialog
-├── TrayFolderFlyout.Setup/        # Отдельный проект установщика с Fluent-интерфейсом
-│   ├── MainWindow.xaml            # Экран инсталлятора
-│   ├── InstallerLogic.cs          # Распаковка, реестр, ярлыки, тихий анинсталл
-│   └── ShortcutHelper.cs          # Win32 создание .lnk
+├── TrayFolderFlyout.Setup/        # Отдельный легковесный установщик с Fluent UI
+│   ├── MainWindow.xaml            # Окно инсталлятора
+│   ├── InstallerLogic.cs          # Распаковка, реестр, автозагрузка, деинсталлятор
+│   └── ShortcutHelper.cs          # Создание ярлыков Windows Shell
 ├── App.xaml / App.xaml.cs         # Точка входа, Single Instance Mutex, диспетчер IPC
 ├── MainWindow.xaml                # Менеджер папок и визуальный редактор
 └── TrayFolderFlyout.csproj        # Спецификация сборки .NET 8 WPF
@@ -143,6 +191,30 @@ TrayFolderFlyout/
 
 ---
 
-## 📄 Лицензия
+<br/>
 
-Проект распространяется под открытой лицензией [MIT License](LICENSE). Вы можете свободно использовать, модифицировать и распространять данный код.
+## 🌐 English Overview
+
+### 📁 Custom Fluent Flyout Folders for Windows 11 Taskbar
+
+**TrayFolderFlyout** is a lightweight, native C# (.NET 8 WPF) Windows 11 application that brings back folder toolbars to your Taskbar with a modern, sleek Fluent Acrylic interface.
+
+### 🌟 Key Features
+- **⚡ Instant 1 ms Response**: Single-instance background daemon communicates via asynchronous Named Pipes for zero startup lag.
+- **🎨 Custom Squircle Presets & Icons**: Includes 10 colorful Fluent Design gradient squircle icons, or assign any custom `.ico`, `.png`, `.jpg`, or `.exe` file.
+- **🫥 Nameless Taskbar Folders**: Leave the folder name blank to create a clean, icon-only shortcut on your taskbar using an invisible Braille blank character (`\u2800`).
+- **📦 Autonomous Shortcuts (`SavedLinks`)**: Dropping shortcuts copies them locally, so you can safely clean up and delete desktop clutter without breaking launches.
+- **🩹 Auto-Healing**: Automatically scans and restores moved applications and shortcuts.
+- **🪟 Windows 11 Fluent Aesthetics**: Native Acrylic blur, smooth rounded corners, and Dark mode matching the Windows 11 system flyouts.
+
+### 📥 Download & Install
+1. Download **`TrayFolderFlyout_Setup.exe`** or **`TrayFolderFlyout_Portable.exe`** from the **[Latest Release](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)**.
+2. Run the installer or unpack the portable executable.
+3. If Windows SmartScreen appears (*"Windows protected your PC"*), click **"More info"** and then **"Run anyway"** (the app is completely open source and does not carry an expensive corporate EV certificate).
+
+---
+
+## 📄 Лицензия / License
+
+Проект распространяется под открытой лицензией [MIT License](LICENSE). Вы можете свободно использовать, модифицировать и распространять данный код.  
+*Distributed under the MIT License. See [LICENSE](LICENSE) for more information.*
