@@ -32,11 +32,11 @@
 <!-- Вставьте сюда скриншоты через Ctrl+V на GitHub -->
 <div align="center">
 
-<img width="850" alt="TrayFolderFlyout Settings Manager" src="https://github.com/user-attachments/assets/ea42964e-e7e8-427e-a2e1-dcec36bbed0b" />
+  <img width="562" height="299" alt="Анимация" src="https://github.com/user-attachments/assets/67bf3559-f690-4f36-b02d-09dbd364f7fa" />
 
 <br/><br/>
 
-<img width="380" alt="TrayFolderFlyout Taskbar Popup" src="https://github.com/user-attachments/assets/f33efe6f-37c0-4d0a-957a-1ee849b9a331" />
+<img width="1182" height="784" alt="Анимация 2" src="https://github.com/user-attachments/assets/317c2345-94a3-49fb-a104-0063c6ce034a" />
 
 <p><i>Компактное всплывающее меню папки на панели задач и интуитивный менеджер настроек в нативном стиле Windows 11 Fluent Dark</i></p>
 
