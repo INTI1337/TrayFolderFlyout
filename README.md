@@ -29,7 +29,7 @@
 <img width="1082" height="724" alt="image" src="https://github.com/user-attachments/assets/ea42964e-e7e8-427e-a2e1-dcec36bbed0b" />
 <div align="center">
 <img width="377" height="300" alt="image" src="https://github.com/user-attachments/assets/f33efe6f-37c0-4d0a-957a-1ee849b9a331" />
-
+</div>
 ---
 
 ## 📥 Как скачать и установить
