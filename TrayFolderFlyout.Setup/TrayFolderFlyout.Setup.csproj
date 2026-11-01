@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationTitle>TrayFolderFlyout Setup</ApplicationTitle>
+    <AssemblyName>TrayFolderFlyout_Setup</AssemblyName>
+    <RootNamespace>TrayFolderFlyout.Setup</RootNamespace>
+    <ApplicationIcon>..\Assets\app.ico</ApplicationIcon>
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="..\Assets\app.ico" Link="Assets\app.ico" />
+    <EmbeddedResource Include="..\Publish\App\TrayFolderFlyout.exe" Link="TrayFolderFlyout.exe" />
+  </ItemGroup>
+
+</Project>

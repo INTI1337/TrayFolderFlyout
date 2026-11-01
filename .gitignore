@@ -1,0 +1,26 @@
+# Build and publish directories
+bin/
+obj/
+Publish/
+Release/
+
+# Visual Studio / IDE files
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Temporary and log files
+*.log
+run.log
+.appdata/
+.dotnet_home/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
