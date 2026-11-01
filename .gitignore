@@ -4,6 +4,14 @@ obj/
 Publish/
 Release/
 
+# Compiled binaries and archives
+*.exe
+*.dll
+*.pdb
+*.zip
+*.7z
+*.rar
+
 # Visual Studio / IDE files
 .vs/
 .idea/
