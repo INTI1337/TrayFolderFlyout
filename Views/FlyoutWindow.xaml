@@ -120,10 +120,9 @@
                 <!-- 2. ITEMS GRID CONTAINER -->
                 <ScrollViewer Grid.Row="2"
                               x:Name="ItemsScrollViewer"
-                              MaxHeight="480"
-                              HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto"
-                              FocusVisualStyle="{x:Null}">
+                              HorizontalScrollBarVisibility="Disabled"
+                              Focusable="False">
                     <ItemsControl x:Name="ItemsHost">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -133,21 +132,25 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Style="{StaticResource FluentButtonStyle}"
-                                        Padding="3"
-                                        Margin="2"
+                                        Width="{Binding CardWidth}"
+                                        Height="{Binding CardHeight}"
+                                        Margin="3"
+                                        Padding="2"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
                                         HorizontalContentAlignment="Center"
                                         VerticalContentAlignment="Center"
                                         Click="Item_Click"
                                         MouseRightButtonUp="Item_RightClick"
                                         MouseDown="Item_MouseDown"
                                         ToolTip="{Binding TargetPath}">
-                                    <Grid Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Grid Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
-                                        <!-- Item Icon (38px with labels, 48px in IconOnly mode) -->
+                                        <!-- Item Icon (32x32 with labels, 44x44 in IconOnly mode) -->
                                         <Image Grid.Row="0"
                                                Source="{Binding Icon}"
                                                Width="{Binding IconSize}" Height="{Binding IconSize}"
@@ -166,7 +169,7 @@
                                                    TextAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    TextTrimming="CharacterEllipsis"
-                                                   MaxHeight="28"
+                                                   MaxHeight="32"
                                                    LineHeight="14"
                                                    Margin="0,3,0,0"/>
                                     </Grid>

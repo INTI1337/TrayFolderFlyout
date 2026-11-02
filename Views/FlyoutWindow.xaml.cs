@@ -172,7 +172,7 @@ namespace TrayFolderFlyout.Views
 
         private void FlyoutWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (Visibility == Visibility.Visible && !_isClosingAnimation && (e.WidthChanged || e.HeightChanged))
+            if (!_isClosingAnimation && (e.WidthChanged || e.HeightChanged) && ActualWidth > 0 && ActualHeight > 0)
             {
                 PositionWindow(_lastCursorX, _lastCursorY);
             }
@@ -260,14 +260,13 @@ namespace TrayFolderFlyout.Views
 
         private void PositionWindow(int cursorX, int cursorY)
         {
-            _lastCursorX = cursorX;
-            _lastCursorY = cursorY;
-
             var pt = new POINT(cursorX, cursorY);
             if (cursorX == 0 && cursorY == 0)
             {
                 Win32.GetCursorPos(out pt);
             }
+            _lastCursorX = pt.X;
+            _lastCursorY = pt.Y;
 
             Win32.GetMonitorAndWorkArea(pt, out RECT rcMonitor, out RECT rcWork);
 
@@ -275,23 +274,29 @@ namespace TrayFolderFlyout.Views
             double dpiScaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
             double dpiScaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
 
-            double workWidth = (rcWork.Right - rcWork.Left);
-            double workHeight = (rcWork.Bottom - rcWork.Top);
+            double workLeft = rcWork.Left / dpiScaleX;
+            double workTop = rcWork.Top / dpiScaleY;
+            double workRight = rcWork.Right / dpiScaleX;
+            double workBottom = rcWork.Bottom / dpiScaleY;
 
-            double workLeftDip = rcWork.Left / dpiScaleX;
-            double workTopDip = rcWork.Top / dpiScaleY;
-            double workRightDip = rcWork.Right / dpiScaleX;
-            double workBottomDip = rcWork.Bottom / dpiScaleY;
+            double maxAvailableHeight = workBottom - workTop - 24.0;
+            double maxAvailableWidth = workRight - workLeft - 24.0;
+            this.MaxHeight = maxAvailableHeight;
+            this.MaxWidth = maxAvailableWidth;
+            if (ItemsScrollViewer != null)
+            {
+                ItemsScrollViewer.MaxHeight = Math.Max(100.0, maxAvailableHeight - 80.0);
+            }
 
             double cursorXDip = pt.X / dpiScaleX;
             double cursorYDip = pt.Y / dpiScaleY;
 
             // Force visual tree template application and content measurement
             ItemsHost.ApplyTemplate();
-            this.Measure(new Size(workWidth / dpiScaleX, workHeight / dpiScaleY));
+            this.Measure(new Size(maxAvailableWidth, maxAvailableHeight));
 
-            double flyoutWidth = this.DesiredSize.Width > 50 ? this.DesiredSize.Width : (ActualWidth > 50 ? ActualWidth : 420);
-            double flyoutHeight = this.DesiredSize.Height > 50 ? this.DesiredSize.Height : (ActualHeight > 50 ? ActualHeight : 350);
+            double flyoutWidth = this.ActualWidth > 50 ? this.ActualWidth : (this.DesiredSize.Width > 50 ? this.DesiredSize.Width : 420);
+            double flyoutHeight = this.ActualHeight > 50 ? this.ActualHeight : (this.DesiredSize.Height > 50 ? this.DesiredSize.Height : 350);
 
             double left, top;
 
@@ -303,34 +308,35 @@ namespace TrayFolderFlyout.Views
             if (rcWork.Top > rcMonitor.Top)
             {
                 // Top taskbar: position flyout 12px below top of work area, centered horizontally on cursor
-                top = workTopDip + 12.0;
+                top = workTop + 12.0;
                 left = cursorXDip - (flyoutWidth / 2.0);
             }
             else if (rcWork.Left > rcMonitor.Left)
             {
                 // Left taskbar: position flyout 12px right of left of work area, centered vertically on cursor
-                left = workLeftDip + 12.0;
+                left = workLeft + 12.0;
                 top = cursorYDip - (flyoutHeight / 2.0);
             }
             else if (rcWork.Right < rcMonitor.Right)
             {
                 // Right taskbar: position flyout 12px left of right of work area, centered vertically on cursor
-                left = workRightDip - flyoutWidth - 12.0;
+                left = workRight - flyoutWidth - 12.0;
                 top = cursorYDip - (flyoutHeight / 2.0);
             }
             else
             {
-                // Bottom taskbar (default): position flyout 12px above bottom of work area, centered horizontally on cursor
-                top = workBottomDip - flyoutHeight - 12.0;
+                // Bottom taskbar (default): bottom edge of the window is ALWAYS exactly 12px above taskbar
+                top = workBottom - flyoutHeight - 12.0;
+                if (top < workTop + 12.0) top = workTop + 12.0;
                 left = cursorXDip - (flyoutWidth / 2.0);
             }
 
             // Strictly clamp within work area bounds with 12px padding on all four sides
-            left = Math.Max(workLeftDip + 12.0, Math.Min(left, workRightDip - flyoutWidth - 12.0));
-            top = Math.Max(workTopDip + 12.0, Math.Min(top, workBottomDip - flyoutHeight - 12.0));
+            left = Math.Max(workLeft + 12.0, Math.Min(left, workRight - flyoutWidth - 12.0));
+            top = Math.Max(workTop + 12.0, Math.Min(top, workBottom - flyoutHeight - 12.0));
 
-            Left = left;
-            Top = top;
+            this.Left = left;
+            this.Top = top;
         }
 
         private void PlayEnterAnimation()

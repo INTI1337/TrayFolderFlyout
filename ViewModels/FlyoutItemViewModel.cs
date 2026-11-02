@@ -70,6 +70,8 @@ namespace TrayFolderFlyout.ViewModels
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsIconOnly));
                     OnPropertyChanged(nameof(IconSize));
+                    OnPropertyChanged(nameof(CardWidth));
+                    OnPropertyChanged(nameof(CardHeight));
                     OnPropertyChanged(nameof(LabelVisibility));
                 }
             }
@@ -77,7 +79,9 @@ namespace TrayFolderFlyout.ViewModels
 
         public bool IsIconOnly => !_showLabel;
         public Visibility LabelVisibility => _showLabel ? Visibility.Visible : Visibility.Collapsed;
-        public double IconSize => _showLabel ? 38 : 48;
+        public double CardWidth => _showLabel ? 80 : 64;
+        public double CardHeight => _showLabel ? 80 : 64;
+        public double IconSize => _showLabel ? 32 : 44;
 
         public FlyoutItemViewModel(FolderItem item, bool showLabel = true)
         {
@@ -87,12 +91,12 @@ namespace TrayFolderFlyout.ViewModels
             _isDirectory = item.IsDirectory;
             IsUrl = item.IsUrl;
             _showLabel = showLabel;
-            _icon = IconService.GetIcon(item.TargetPath, item.CustomIconPath, showLabel ? 38 : 48);
+            _icon = IconService.GetIcon(item.TargetPath, item.CustomIconPath, showLabel ? 32 : 44);
         }
 
         public void ReloadIcon()
         {
-            Icon = IconService.GetIcon(SourceItem.TargetPath, SourceItem.CustomIconPath, _showLabel ? 38 : 48);
+            Icon = IconService.GetIcon(SourceItem.TargetPath, SourceItem.CustomIconPath, _showLabel ? 32 : 44);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
