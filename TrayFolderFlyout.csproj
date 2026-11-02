@@ -17,6 +17,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TrayFolderFlyout.Setup\**" />
+    <Compile Remove="Publish\**" />
+    <Compile Remove="Release\**" />
+    <Page Remove="TrayFolderFlyout.Setup\**" />
+    <Page Remove="Publish\**" />
+    <Page Remove="Release\**" />
+    <Resource Remove="TrayFolderFlyout.Setup\**" />
+    <Resource Remove="Publish\**" />
+    <Resource Remove="Release\**" />
+    <None Remove="TrayFolderFlyout.Setup\**" />
+    <None Remove="Publish\**" />
+    <None Remove="Release\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Assets\app.ico" />
     <None Include="Assets\app.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -818,6 +819,107 @@ namespace TrayFolderFlyout
         {
             bool enable = AutoRunCheckBox.IsChecked == true;
             AutoRunService.SetAutoRun(enable);
+        }
+
+        private void ExportConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var sfd = new SaveFileDialog
+                {
+                    Title = "Экспорт конфигурации TrayFolderFlyout",
+                    Filter = "Файлы конфигурации (*.json)|*.json|Все файлы (*.*)|*.*",
+                    FileName = $"TrayFolderFlyout_Backup_{DateTime.Now:yyyy-MM-dd}.json"
+                };
+
+                if (sfd.ShowDialog() == true)
+                {
+                    var options = new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNameCaseInsensitive = true
+                    };
+                    string json = System.Text.Json.JsonSerializer.Serialize(_config, options);
+                    File.WriteAllText(sfd.FileName, json);
+                    MessageBox.Show("Конфигурация успешно экспортирована!", "Экспорт завершён", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при экспорте настроек: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ImportConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ofd = new OpenFileDialog
+                {
+                    Title = "Импорт конфигурации TrayFolderFlyout",
+                    Filter = "Файлы конфигурации (*.json)|*.json|Все файлы (*.*)|*.*"
+                };
+
+                if (ofd.ShowDialog() == true)
+                {
+                    string json = File.ReadAllText(ofd.FileName);
+                    var options = new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var imported = System.Text.Json.JsonSerializer.Deserialize<AppConfig>(json, options);
+
+                    if (imported == null || imported.Groups == null || imported.Groups.Count == 0)
+                    {
+                        MessageBox.Show("Выбранный файл не содержит корректных настроек или список папок пуст.", "Ошибка импорта", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    foreach (var g in imported.Groups)
+                    {
+                        if (string.IsNullOrEmpty(g.Id)) g.Id = Guid.NewGuid().ToString("N");
+                        g.Items ??= new List<FolderItem>();
+                        foreach (var it in g.Items)
+                        {
+                            if (string.IsNullOrEmpty(it.Id)) it.Id = Guid.NewGuid().ToString("N");
+                        }
+                    }
+
+                    _config = imported;
+                    ConfigService.Instance.SaveConfig(_config);
+                    ConfigService.Instance.RepairMovedShortcuts(_config, force: true);
+
+                    RefreshGroupsList();
+                    if (GroupsListBox.Items.Count > 0)
+                    {
+                        GroupsListBox.SelectedIndex = 0;
+                    }
+                    App.RefreshAllUI();
+
+                    MessageBox.Show($"Успешно импортировано папок: {_config.Groups.Count}", "Импорт завершён", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при импорте конфигурации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenConfigFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string dir = ConfigService.Instance.BaseDirectory;
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                Process.Start("explorer.exe", $"\"{dir}\"");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось открыть папку: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private static T? FindVisualAncestor<T>(DependencyObject? current) where T : DependencyObject

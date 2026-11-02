@@ -24,11 +24,23 @@ namespace TrayFolderFlyout.Views
         public long OpenedTimestamp { get; private set; }
         public long ClosedTimestamp { get; private set; }
 
+        public static readonly DependencyProperty CurrentColumnsProperty =
+            DependencyProperty.Register(nameof(CurrentColumns), typeof(int), typeof(FlyoutWindow), new PropertyMetadata(4));
+
+        public int CurrentColumns
+        {
+            get => (int)GetValue(CurrentColumnsProperty);
+            set => SetValue(CurrentColumnsProperty, value);
+        }
+
         private AppConfig _config = null!;
         private FolderGroup _group = null!;
         private readonly ObservableCollection<FlyoutItemViewModel> _items = new();
         private readonly Stack<string> _navigationStack = new();
         private string? _currentSubfolderPath;
+
+        private int _lastCursorX;
+        private int _lastCursorY;
 
         private bool _isMenuOpen;
         private bool _isDragActive;
@@ -41,6 +53,8 @@ namespace TrayFolderFlyout.Views
             ItemsHost.ItemsSource = _items;
 
             SourceInitialized += FlyoutWindow_SourceInitialized;
+            SizeChanged += FlyoutWindow_SizeChanged;
+            ContentRendered += FlyoutWindow_ContentRendered;
             Closing += (s, e) =>
             {
                 e.Cancel = true;
@@ -144,26 +158,51 @@ namespace TrayFolderFlyout.Views
             }
         }
 
+        private void UniformGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Primitives.UniformGrid panel && _group != null)
+            {
+                panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+            }
+        }
+
+        private void FlyoutWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (Visibility == Visibility.Visible && !_isClosingAnimation && (e.WidthChanged || e.HeightChanged))
+            {
+                PositionWindow(_lastCursorX, _lastCursorY);
+            }
+        }
+
+        private void FlyoutWindow_ContentRendered(object? sender, EventArgs e)
+        {
+            if (Visibility == Visibility.Visible && !_isClosingAnimation)
+            {
+                PositionWindow(_lastCursorX, _lastCursorY);
+            }
+        }
+
         private void LoadCurrentView()
         {
             _items.Clear();
 
             // Set grid columns (3 to 6)
+            CurrentColumns = _group != null ? Math.Clamp(_group.Columns, 3, 6) : 4;
             var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
-            if (panel != null)
+            if (panel != null && _group != null)
             {
-                panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+                panel.Columns = CurrentColumns;
             }
 
             if (!string.IsNullOrEmpty(_currentSubfolderPath) && Directory.Exists(_currentSubfolderPath))
             {
                 LoadDirectoryContents(_currentSubfolderPath);
             }
-            else if (_group.Type == FolderType.Synchronized && !string.IsNullOrEmpty(_group.SyncPath) && Directory.Exists(_group.SyncPath))
+            else if (_group != null && _group.Type == FolderType.Synchronized && !string.IsNullOrEmpty(_group.SyncPath) && Directory.Exists(_group.SyncPath))
             {
                 LoadDirectoryContents(_group.SyncPath);
             }
-            else
+            else if (_group != null)
             {
                 foreach (var item in _group.Items)
                 {
@@ -216,39 +255,74 @@ namespace TrayFolderFlyout.Views
 
         private void PositionWindow(int cursorX, int cursorY)
         {
+            _lastCursorX = cursorX;
+            _lastCursorY = cursorY;
+
             var pt = new POINT(cursorX, cursorY);
             if (cursorX == 0 && cursorY == 0)
             {
                 Win32.GetCursorPos(out pt);
             }
 
-            var workArea = Win32.GetWorkAreaForPoint(pt);
-            var source = PresentationSource.FromVisual(this);
-            double dpiScaleX = source?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
-            double dpiScaleY = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
+            Win32.GetMonitorAndWorkArea(pt, out RECT rcMonitor, out RECT rcWork);
 
-            double screenLeftDip = workArea.Left / dpiScaleX;
-            double screenRightDip = workArea.Right / dpiScaleX;
-            double screenBottomDip = workArea.Bottom / dpiScaleY;
-            double screenTopDip = workArea.Top / dpiScaleY;
+            var dpi = VisualTreeHelper.GetDpi(this);
+            double dpiScaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
+            double dpiScaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
+
+            double workLeftDip = rcWork.Left / dpiScaleX;
+            double workTopDip = rcWork.Top / dpiScaleY;
+            double workRightDip = rcWork.Right / dpiScaleX;
+            double workBottomDip = rcWork.Bottom / dpiScaleY;
 
             double cursorXDip = pt.X / dpiScaleX;
+            double cursorYDip = pt.Y / dpiScaleY;
 
+            // Force visual tree template application and content measurement
+            ItemsHost.ApplyTemplate();
             UpdateLayout();
+            Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
-            double flyoutWidth = ActualWidth > 0 ? ActualWidth : 340;
-            double flyoutHeight = ActualHeight > 0 ? ActualHeight : 240;
+            double flyoutWidth = ActualWidth > 0 ? ActualWidth : DesiredSize.Width;
+            double flyoutHeight = ActualHeight > 0 ? ActualHeight : DesiredSize.Height;
+            if (flyoutWidth <= 0) flyoutWidth = 340;
+            if (flyoutHeight <= 0) flyoutHeight = 240;
 
-            // Center horizontally on cursor, clamp with 12px margin
-            double left = cursorXDip - (flyoutWidth / 2.0);
-            left = Math.Max(screenLeftDip + 12.0, Math.Min(left, screenRightDip - flyoutWidth - 12.0));
+            double left, top;
 
-            // Position 12px above taskbar
-            double top = screenBottomDip - flyoutHeight - 12.0;
-            if (top < screenTopDip + 12.0)
+            // Determine taskbar position by comparing work area with full monitor rectangle:
+            // 1. Taskbar at TOP: work area starts below monitor top
+            // 2. Taskbar at LEFT: work area starts right of monitor left
+            // 3. Taskbar at RIGHT: work area ends left of monitor right
+            // 4. Taskbar at BOTTOM: work area ends above monitor bottom (standard)
+            if (rcWork.Top > rcMonitor.Top)
             {
-                top = screenTopDip + 12.0;
+                // Top taskbar: position flyout 12px below top of work area, centered horizontally on cursor
+                top = workTopDip + 12.0;
+                left = cursorXDip - (flyoutWidth / 2.0);
             }
+            else if (rcWork.Left > rcMonitor.Left)
+            {
+                // Left taskbar: position flyout 12px right of left of work area, centered vertically on cursor
+                left = workLeftDip + 12.0;
+                top = cursorYDip - (flyoutHeight / 2.0);
+            }
+            else if (rcWork.Right < rcMonitor.Right)
+            {
+                // Right taskbar: position flyout 12px left of right of work area, centered vertically on cursor
+                left = workRightDip - flyoutWidth - 12.0;
+                top = cursorYDip - (flyoutHeight / 2.0);
+            }
+            else
+            {
+                // Bottom taskbar (default): position flyout 12px above bottom of work area, centered horizontally on cursor
+                top = workBottomDip - flyoutHeight - 12.0;
+                left = cursorXDip - (flyoutWidth / 2.0);
+            }
+
+            // Strictly clamp within work area bounds with 12px padding on all four sides
+            left = Math.Max(workLeftDip + 12.0, Math.Min(left, workRightDip - flyoutWidth - 12.0));
+            top = Math.Max(workTopDip + 12.0, Math.Min(top, workBottomDip - flyoutHeight - 12.0));
 
             Left = left;
             Top = top;

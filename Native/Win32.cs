@@ -70,21 +70,37 @@ namespace TrayFolderFlyout.Native
 
         public static RECT GetWorkAreaForPoint(POINT pt)
         {
+            GetMonitorAndWorkArea(pt, out _, out RECT rcWork);
+            return rcWork;
+        }
+
+        public static bool GetMonitorAndWorkArea(POINT pt, out RECT rcMonitor, out RECT rcWork)
+        {
             IntPtr hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
             var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
             if (hMonitor != IntPtr.Zero && GetMonitorInfo(hMonitor, ref mi))
             {
-                return mi.rcWork;
+                rcMonitor = mi.rcMonitor;
+                rcWork = mi.rcWork;
+                return true;
             }
 
             // Fallback: Primary monitor work area via SystemParameters
-            return new RECT
+            rcMonitor = new RECT
+            {
+                Left = 0,
+                Top = 0,
+                Right = (int)System.Windows.SystemParameters.PrimaryScreenWidth,
+                Bottom = (int)System.Windows.SystemParameters.PrimaryScreenHeight
+            };
+            rcWork = new RECT
             {
                 Left = (int)System.Windows.SystemParameters.WorkArea.Left,
                 Top = (int)System.Windows.SystemParameters.WorkArea.Top,
                 Right = (int)System.Windows.SystemParameters.WorkArea.Right,
                 Bottom = (int)System.Windows.SystemParameters.WorkArea.Bottom
             };
+            return false;
         }
 
         // Shell Item Creation

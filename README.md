@@ -7,9 +7,10 @@
 ### Нативные всплывающие папки для панели задач Windows 11
 **Fluent Design • Акриловый блюр (Acrylic) • Мгновенный отклик 1 мс • Чистый Рабочий стол**
 
-[![Latest Release](https://img.shields.io/github/v/release/INTI1337/TrayFolderFlyout?style=for-the-badge&color=6366f1)](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/INTI1337/TrayFolderFlyout/total?style=for-the-badge&color=10b981)](https://github.com/INTI1337/TrayFolderFlyout/releases)
-[![Stars](https://img.shields.io/github/stars/INTI1337/TrayFolderFlyout?style=for-the-badge&color=f59e0b)](https://github.com/INTI1337/TrayFolderFlyout/stargazers)
+[![Build and Release](https://github.com/INTI1337/TrayFolderFlyout/actions/workflows/release.yml/badge.svg)](https://github.com/INTI1337/TrayFolderFlyout/actions/workflows/release.yml)
+[![Latest Release](https://img.shields.io/github/v/release/INTI1337/TrayFolderFlyout?style=for-the-badge&color=6366f1&logo=github)](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/INTI1337/TrayFolderFlyout/total?style=for-the-badge&color=10b981&logo=windows)](https://github.com/INTI1337/TrayFolderFlyout/releases)
+[![Stars](https://img.shields.io/github/stars/INTI1337/TrayFolderFlyout?style=for-the-badge&color=f59e0b&logo=reverbnation&logoColor=white)](https://github.com/INTI1337/TrayFolderFlyout/stargazers)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%20x64-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/INTI1337/TrayFolderFlyout)
 [![License](https://img.shields.io/github/license/INTI1337/TrayFolderFlyout?style=for-the-badge&color=ec4899)](LICENSE)
 
@@ -21,6 +22,7 @@
   <a href="#-таблица-преимуществ"><b>Преимущества</b></a> •
   <a href="#-как-скачать-и-установить"><b>Установка</b></a> •
   <a href="#-основные-возможности"><b>Возможности</b></a> •
+  <a href="#-безопасность-и-прозрачность-сборки"><b>Безопасность</b></a> •
   <a href="#-сборка-из-исходного-кода"><b>Сборка</b></a> •
   <a href="#-english-overview"><b>English Overview 🌐</b></a>
 </p>
@@ -61,8 +63,11 @@
 | **Интеграция со стилем Windows 11** | **✨ Нативный Fluent Acrylic & Mica** | 📁 Стандартное белое окно папки | ❌ Нет всплывающих меню |
 | **Кастомные иконки в панели задач** | **🎨 10 градиентных сквирклов + любые .ico/.png/.exe** | ❌ Стандартная желтая папка | ⚠️ Только оригинальная иконка программы |
 | **«Безымянные папки» (Clean Look)** | **🫥 Да (символ Брайля, чистая иконка без подписи)** | ❌ Невозможно без хаков | ❌ Всегда отображается имя файла |
+| **Любое положение панели задач** | **🧭 Снизу, сверху, слева, справа (авто-привязка)** | ❌ — | ❌ — |
 | **Автономность ярлыков** | **📦 Да (копирование в `SavedLinks`)** | ❌ Нет *(удалил оригинал — ярлык сломался)* | ❌ Нет |
 | **Интеллектуальное автовосстановление** | **🩹 Да (`Auto-Heal` при перемещении файлов)** | ❌ Нет | ❌ Нет |
+| **Smart Portable режим** | **💼 Да (хранение данных в `UserData`, 0 следов в системе)** | ❌ — | ❌ — |
+| **Резервное копирование (JSON)** | **💾 Да (Экспорт / Импорт настроек в 1 клик)** | ❌ Нет | ❌ Нет |
 | **Нагрузка на систему** | **🍃 0% CPU, минимум RAM** | — | — |
 | **Чистота рабочего пространства** | **✨ 100% чистый Рабочий стол без мусора** | ❌ Захламлён сотнями значков | ⚠️ Ограниченное число ярлыков в панели |
 
@@ -83,7 +88,8 @@
 
 ### Вариант 2. Портативная версия (Portable)
 1. В разделе **[Releases](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)** скачайте **`TrayFolderFlyout_Portable.exe`** (или `.zip`-архив).
-2. Поместите файл в любую папку и запустите. Программа готова к работе без инсталляции, все пользовательские данные сохраняются в `%AppData%\TrayFolderFlyout\`.
+2. Поместите файл в любую папку и запустите. Программа готова к работе без инсталляции.
+3. **Умный режим без следов**: если рядом с `.exe` находится папка `UserData`, файл `config.json` или маркер `.portable`, все настройки, иконки и ярлыки хранятся строго локально, не затрагивая системный реестр и `%AppData%`.
 
 ---
 
@@ -101,35 +107,47 @@
 
 ---
 
+## 🛡️ Безопасность и прозрачность сборки
+
+1. **100% чистая автоматическая сборка (GitHub Actions CI/CD)**:
+   Весь код открыт, а релизные бинарные файлы (`TrayFolderFlyout_Setup.exe`, `TrayFolderFlyout_Portable.exe`) компилируются автоматически на изолированных облачных серверах GitHub Actions напрямую из публичных коммитов репозитория. В релиз не попадает ни одного файла, собранного на локальном компьютере автора.
+2. **Криптографическая аттестация подлинности (GitHub Artifact Attestations)**:
+   Каждый исполняемый файл подписывается официальной службой аттестации GitHub (Sigstore). Вы можете в любой момент удостовериться, что скачанный файл был собран именно из исходного кода этого репозитория:
+   ```bash
+   gh attestation verify TrayFolderFlyout_Portable.exe --owner INTI1337
+   ```
+3. **Отчёты VirusTotal и контрольные суммы SHA256**:
+   В описании каждого релиза автоматически публикуются прямые ссылки на результаты проверки через **VirusTotal API** и хэши `checksums_sha256.txt` для проверки целостности файлов.
+
+---
+
 ## ✨ Основные возможности
 
 ### ⚡ 1. Мгновенный отклик за 1 миллисекунду
 - **Архитектура Single-Instance Daemon**: приложение непрерывно работает в фоне как легковесный фоновый процесс (0% CPU, минимум памяти).
 - При нажатии на закреплённый ярлык клиентский процесс мгновенно передает идентификатор группы через локальный асинхронный канал **Named Pipe** (`TrayFolderFlyout_Pipe`). Предзагруженное окно появляется на экране за доли секунды без лагов запуска.
 
-### 🎨 2. Кастомные иконки и 10 сочных градиентных пресетов
+### 🧭 2. Интеллектуальное позиционирование (Любое положение Taskbar)
+- Автоматическое определение положения панели задач Windows 11: снизу, сверху, слева или справа.
+- Окно всегда открывается с аккуратным отступом 12px от панели задач и центрируется относительно иконки, строго оставаясь в границах рабочей области экрана.
+
+### 🎨 3. Кастомные иконки и 10 сочных градиентных пресетов
 - 10 встроенных дизайнерских сквирклов в стилистике Fluent Design: «Игры», «Работа», «Система», «Медиа», «Код», «Дизайн», «Интернет», «Офис», «Безопасность», «Папка».
 - Возможность установить собственную картинку или иконку любого формата (`.ico`, `.png`, `.jpg`, `.jpeg`, `.bmp`, `.exe`) — они на лету конвертируются в многослойный `.ico` со всеми системными разрешениями (16x16, 32x32, 48x48, 256x256).
 
-### 🫥 3. «Безымянные папки» для ультрачистого вида панели задач
+### 🫥 4. «Безымянные папки» для ультрачистого вида панели задач
 - При пустом названии папки программа автоматически подставляет невидимый символ Брайля (`\u2800`). На панели задач закрепляется исключительно красивая иконка без лишних подписей, точек и многоточий.
 
-### 📦 4. Автономное хранилище ярлыков (`SavedLinks`)
-- При перетаскивании (Drag-and-Drop) файлов и ярлыков в окно менеджера программа автоматически сохраняет копию `.lnk` / `.url` внутри `%AppData%\TrayFolderFlyout\SavedLinks\`.
+### 📦 5. Автономное хранилище ярлыков (`SavedLinks`)
+- При перетаскивании (Drag-and-Drop) файлов и ярлыков в окно менеджера программа автоматически сохраняет копию `.lnk` / `.url` внутри папки `SavedLinks`.
 - **Вы можете смело удалять ярлыки с Рабочего стола** — папка продолжит стабильно запускать все ваши программы.
 
-### 🩹 5. Интеллектуальное автовосстановление (Auto-Heal)
+### 🩹 6. Интеллектуальное автовосстановление (Auto-Heal)
 - Если целевые файлы были перемещены во вложенные подкаталоги или меню «Пуск», встроенный интеллектуальный сканер автоматически найдет их новое расположение и обновит пути.
 
-### 🖼️ 6. Честное извлечение иконок без «белых листков»
-- Извлечение значков выполняется в выделенных STA-потоках через нативный Win32 Shell API (`IShellItemImageFactory`, `SHGetFileInfo`, `ExtractIconEx`).
-- Все иконки кэшируются в 32-битный PNG с честной альфа-прозрачностью без черных полей и графических артефактов.
-
-### 🎛️ 7. Гибкая персонализация
-- Сетка от 3 до 6 колонок.
-- Режимы отображения: «С подписями» (комфортные карточки) и «Только иконки» (минималистично и ультракомпактно).
-- Синхронизация с реальными каталогами диска (например, автоотображение файлов из папки «Загрузки»).
-- Изменение порядка элементов простым перетаскиванием мыши (Drag & Drop).
+### 💾 7. Экспорт и импорт настроек (Резервное копирование в JSON)
+- Экспорт всей структуры папок, порядка элементов и настроек в читаемый `.json` файл в один клик.
+- Импорт с мгновенным обновлением интерфейса без необходимости перезапускать программу.
 
 ---
 
@@ -159,7 +177,7 @@
 
 2. **Сборка основного автономного приложения (Portable Single-File):**
    ```bash
-   dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -p:DebugSymbols=false -o ./Publish/App
+   dotnet publish TrayFolderFlyout.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -p:DebugSymbols=false -o ./Publish/App
    ```
 
 3. **Сборка установщика `TrayFolderFlyout_Setup.exe`:**
@@ -173,6 +191,9 @@
 
 ```
 TrayFolderFlyout/
+├── .github/
+│   ├── workflows/release.yml      # CI/CD автоматическая сборка, аттестация и релизы
+│   └── ISSUE_TEMPLATE/            # Шаблоны баг-репортов и предложений
 ├── Assets/                        # Иконка приложения (256x256 Bento grid) и стили
 ├── Models/                        # Доменные модели (AppConfig, FolderGroup, FolderItem)
 ├── Native/                        # Win32 P/Invoke, COM IShellLinkW, IShellItemImageFactory
@@ -201,11 +222,22 @@ TrayFolderFlyout/
 
 ### 🌟 Key Features
 - **⚡ Instant 1 ms Response**: Single-instance background daemon communicates via asynchronous Named Pipes for zero startup lag.
+- **🧭 Multi-Orientation Taskbar Support**: Supports bottom, top, left, and right taskbar layouts with automatic 12px margin bounds clamping.
 - **🎨 Custom Squircle Presets & Icons**: Includes 10 colorful Fluent Design gradient squircle icons, or assign any custom `.ico`, `.png`, `.jpg`, or `.exe` file.
 - **🫥 Nameless Taskbar Folders**: Leave the folder name blank to create a clean, icon-only shortcut on your taskbar using an invisible Braille blank character (`\u2800`).
+- **💼 Smart Portable Mode**: Zero footprint on the host system when `UserData/`, `config.json`, or `.portable` marker is present next to the executable.
 - **📦 Autonomous Shortcuts (`SavedLinks`)**: Dropping shortcuts copies them locally, so you can safely clean up and delete desktop clutter without breaking launches.
+- **💾 JSON Backup & Restore**: Export and import your entire folder structure in one click with instant hot-reload.
 - **🩹 Auto-Healing**: Automatically scans and restores moved applications and shortcuts.
 - **🪟 Windows 11 Fluent Aesthetics**: Native Acrylic blur, smooth rounded corners, and Dark mode matching the Windows 11 system flyouts.
+
+### 🛡️ Security & Build Verification
+1. **Automated CI/CD**: All release executables are built strictly on clean GitHub Actions runners directly from public commits.
+2. **Cryptographic Attestations**: Verify release artifact provenance using GitHub CLI:
+   ```bash
+   gh attestation verify TrayFolderFlyout_Portable.exe --owner INTI1337
+   ```
+3. **VirusTotal & Checksums**: Every release includes automated VirusTotal report links and SHA256 checksums (`checksums_sha256.txt`).
 
 ### 📥 Download & Install
 1. Download **`TrayFolderFlyout_Setup.exe`** or **`TrayFolderFlyout_Portable.exe`** from the **[Latest Release](https://github.com/INTI1337/TrayFolderFlyout/releases/latest)**.

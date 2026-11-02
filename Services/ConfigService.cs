@@ -19,6 +19,7 @@ namespace TrayFolderFlyout.Services
         public string ShortcutsDirectory { get; }
         public string SavedLinksDirectory { get; }
         public string ConfigFilePath { get; }
+        public bool IsPortableMode { get; }
 
         private bool _repairDone = false;
 
@@ -30,7 +31,8 @@ namespace TrayFolderFlyout.Services
 
         public ConfigService()
         {
-            BaseDirectory = ResolveBaseDirectory();
+            BaseDirectory = ResolveBaseDirectory(out bool isPortable);
+            IsPortableMode = isPortable;
             IconsDirectory = Path.Combine(BaseDirectory, "Icons");
             ShortcutsDirectory = Path.Combine(BaseDirectory, "Shortcuts");
             SavedLinksDirectory = Path.Combine(BaseDirectory, "SavedLinks");
@@ -39,8 +41,48 @@ namespace TrayFolderFlyout.Services
             EnsureDirectories();
         }
 
-        private static string ResolveBaseDirectory()
+        private static string ResolveBaseDirectory(out bool isPortable)
         {
+            string appDir = AppDomain.CurrentDomain.BaseDirectory;
+            string localUserData = Path.Combine(appDir, "UserData");
+            string localConfigJson = Path.Combine(appDir, "config.json");
+            string portableMarker = Path.Combine(appDir, ".portable");
+
+            string processName = "";
+            try
+            {
+                processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+            }
+            catch { }
+
+            bool isPortableExe = processName.Contains("Portable", StringComparison.OrdinalIgnoreCase);
+
+            bool shouldBePortable = Directory.Exists(localUserData) ||
+                                    File.Exists(localConfigJson) ||
+                                    File.Exists(portableMarker) ||
+                                    isPortableExe;
+
+            if (shouldBePortable)
+            {
+                string targetDir = File.Exists(localConfigJson) ? appDir : localUserData;
+                try
+                {
+                    if (!Directory.Exists(targetDir))
+                    {
+                        Directory.CreateDirectory(targetDir);
+                    }
+                    string test = Path.Combine(targetDir, ".perm_test");
+                    File.WriteAllText(test, "ok");
+                    File.Delete(test);
+                    isPortable = true;
+                    return targetDir;
+                }
+                catch
+                {
+                    // Fall through to %APPDATA% if writing to local directory fails (e.g. Program Files)
+                }
+            }
+
             try
             {
                 string roaming = Path.Combine(
@@ -55,17 +97,22 @@ namespace TrayFolderFlyout.Services
                 string test = Path.Combine(roaming, ".perm_test");
                 File.WriteAllText(test, "ok");
                 File.Delete(test);
+                isPortable = false;
                 return roaming;
             }
             catch
             {
-                // Portable / sandboxed fallback
-                string local = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UserData");
-                if (!Directory.Exists(local))
+                // Fallback to local UserData
+                try
                 {
-                    Directory.CreateDirectory(local);
+                    if (!Directory.Exists(localUserData))
+                    {
+                        Directory.CreateDirectory(localUserData);
+                    }
                 }
-                return local;
+                catch { }
+                isPortable = true;
+                return localUserData;
             }
         }
 
