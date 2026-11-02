@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,20 +19,15 @@ using TrayFolderFlyout.ViewModels;
 
 namespace TrayFolderFlyout.Views
 {
-    public partial class FlyoutWindow : Window
+    public partial class FlyoutWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public string? CurrentGroupId { get; private set; }
         public long OpenedTimestamp { get; private set; }
         public long ClosedTimestamp { get; private set; }
 
-        public static readonly DependencyProperty CurrentColumnsProperty =
-            DependencyProperty.Register(nameof(CurrentColumns), typeof(int), typeof(FlyoutWindow), new PropertyMetadata(4));
-
-        public int CurrentColumns
-        {
-            get => (int)GetValue(CurrentColumnsProperty);
-            set => SetValue(CurrentColumnsProperty, value);
-        }
+        public int TargetColumns => Math.Clamp(_group?.Columns ?? 5, 3, 6);
 
         private AppConfig _config = null!;
         private FolderGroup _group = null!;
@@ -94,20 +90,35 @@ namespace TrayFolderFlyout.Views
             }
 
             _group = group;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetColumns)));
             UpdateHeader(_group.Name, _group.CustomIconPath);
             LoadCurrentView();
 
-            // Position window relative to cursor or taskbar
+            // Guarantee size is determined by content
+            SizeToContent = SizeToContent.WidthAndHeight;
+
+            // Initially set Opacity = 0 to prevent any visible jump/flicker during measurement
+            Opacity = 0.0;
+
+            // 1. Initial measurement and positioning using DesiredSize
             PositionWindow(cursorX, cursorY);
 
-            // Make visible and bring to foreground
+            // 2. Show window and perform layout pass
             Show();
+            UpdateLayout();
+
+            // 3. Re-calculate PositionWindow with accurate rendered dimensions
+            PositionWindow(cursorX, cursorY);
+
+            // Bring to foreground
             var hwnd = new WindowInteropHelper(this).Handle;
             Win32.SetForegroundWindow(hwnd);
             try { Activate(); } catch { }
             try { Focus(); } catch { }
 
             OpenedTimestamp = Environment.TickCount64;
+
+            // 4. Smoothly fade in and slide up to Opacity = 1
             PlayEnterAnimation();
         }
 
@@ -153,16 +164,9 @@ namespace TrayFolderFlyout.Views
             if (updated != null)
             {
                 _group = updated;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetColumns)));
                 UpdateHeader(_group.Name, _group.CustomIconPath);
                 LoadCurrentView();
-            }
-        }
-
-        private void UniformGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is System.Windows.Controls.Primitives.UniformGrid panel && _group != null)
-            {
-                panel.Columns = Math.Clamp(_group.Columns, 3, 6);
             }
         }
 
@@ -186,12 +190,11 @@ namespace TrayFolderFlyout.Views
         {
             _items.Clear();
 
-            // Set grid columns (3 to 6)
-            CurrentColumns = _group != null ? Math.Clamp(_group.Columns, 3, 6) : 4;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetColumns)));
             var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
-            if (panel != null && _group != null)
+            if (panel != null)
             {
-                panel.Columns = CurrentColumns;
+                panel.Columns = TargetColumns;
             }
 
             if (!string.IsNullOrEmpty(_currentSubfolderPath) && Directory.Exists(_currentSubfolderPath))
@@ -270,6 +273,9 @@ namespace TrayFolderFlyout.Views
             double dpiScaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
             double dpiScaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
 
+            double workWidth = (rcWork.Right - rcWork.Left);
+            double workHeight = (rcWork.Bottom - rcWork.Top);
+
             double workLeftDip = rcWork.Left / dpiScaleX;
             double workTopDip = rcWork.Top / dpiScaleY;
             double workRightDip = rcWork.Right / dpiScaleX;
@@ -280,13 +286,10 @@ namespace TrayFolderFlyout.Views
 
             // Force visual tree template application and content measurement
             ItemsHost.ApplyTemplate();
-            UpdateLayout();
-            Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            this.Measure(new Size(workWidth / dpiScaleX, workHeight / dpiScaleY));
 
-            double flyoutWidth = ActualWidth > 0 ? ActualWidth : DesiredSize.Width;
-            double flyoutHeight = ActualHeight > 0 ? ActualHeight : DesiredSize.Height;
-            if (flyoutWidth <= 0) flyoutWidth = 340;
-            if (flyoutHeight <= 0) flyoutHeight = 240;
+            double flyoutWidth = this.DesiredSize.Width > 50 ? this.DesiredSize.Width : (ActualWidth > 50 ? ActualWidth : 420);
+            double flyoutHeight = this.DesiredSize.Height > 50 ? this.DesiredSize.Height : (ActualHeight > 50 ? ActualHeight : 350);
 
             double left, top;
 
@@ -339,6 +342,8 @@ namespace TrayFolderFlyout.Views
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
+
+            fadeIn.Completed += (s, e) => Opacity = 1.0;
 
             Opacity = 0.0;
             BeginAnimation(OpacityProperty, fadeIn);
