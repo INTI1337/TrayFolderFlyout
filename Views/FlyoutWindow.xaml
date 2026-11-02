@@ -80,7 +80,8 @@
                                Width="16" Height="16"
                                Margin="0,0,8,0"
                                VerticalAlignment="Center"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               SnapsToDevicePixels="True"/>
                         <TextBlock x:Name="HeaderTitleText"
                                    Text="Папка"
                                    FontSize="12"
@@ -132,29 +133,33 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Style="{StaticResource FluentButtonStyle}"
-                                        Padding="2"
+                                        Padding="3"
                                         Margin="2"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
                                         Click="Item_Click"
                                         MouseRightButtonUp="Item_RightClick"
                                         MouseDown="Item_MouseDown"
                                         ToolTip="{Binding TargetPath}">
-                                    <Grid Margin="3">
+                                    <Grid Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
-                                        <!-- Item Icon -->
+                                        <!-- Item Icon (38px with labels, 48px in IconOnly mode) -->
                                         <Image Grid.Row="0"
                                                Source="{Binding Icon}"
-                                               Width="38" Height="38"
+                                               Width="{Binding IconSize}" Height="{Binding IconSize}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
-                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                               RenderOptions.BitmapScalingMode="HighQuality"
+                                               SnapsToDevicePixels="True"/>
 
-                                        <!-- Item Label (if enabled) -->
+                                        <!-- Item Label (Collapsed if IconOnly) -->
                                         <TextBlock Grid.Row="1"
                                                    Text="{Binding Name}"
+                                                   Visibility="{Binding LabelVisibility}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    FontSize="11"
                                                    FontFamily="Segoe UI Variable Text, Segoe UI"

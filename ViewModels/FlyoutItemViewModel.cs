@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media;
 using TrayFolderFlyout.Models;
 using TrayFolderFlyout.Services;
@@ -12,6 +13,7 @@ namespace TrayFolderFlyout.ViewModels
         private ImageSource? _icon;
         private string _targetPath = "";
         private bool _isDirectory;
+        private bool _showLabel = true;
 
         public FolderItem SourceItem { get; set; }
 
@@ -57,19 +59,40 @@ namespace TrayFolderFlyout.ViewModels
 
         public bool IsUrl { get; set; }
 
-        public FlyoutItemViewModel(FolderItem item)
+        public bool ShowLabel
+        {
+            get => _showLabel;
+            set
+            {
+                if (_showLabel != value)
+                {
+                    _showLabel = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsIconOnly));
+                    OnPropertyChanged(nameof(IconSize));
+                    OnPropertyChanged(nameof(LabelVisibility));
+                }
+            }
+        }
+
+        public bool IsIconOnly => !_showLabel;
+        public Visibility LabelVisibility => _showLabel ? Visibility.Visible : Visibility.Collapsed;
+        public double IconSize => _showLabel ? 38 : 48;
+
+        public FlyoutItemViewModel(FolderItem item, bool showLabel = true)
         {
             SourceItem = item;
             _name = item.Name;
             _targetPath = item.TargetPath;
             _isDirectory = item.IsDirectory;
             IsUrl = item.IsUrl;
-            _icon = IconService.GetIcon(item.TargetPath, item.CustomIconPath, 48);
+            _showLabel = showLabel;
+            _icon = IconService.GetIcon(item.TargetPath, item.CustomIconPath, showLabel ? 38 : 48);
         }
 
         public void ReloadIcon()
         {
-            Icon = IconService.GetIcon(SourceItem.TargetPath, SourceItem.CustomIconPath, 48);
+            Icon = IconService.GetIcon(SourceItem.TargetPath, SourceItem.CustomIconPath, _showLabel ? 38 : 48);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

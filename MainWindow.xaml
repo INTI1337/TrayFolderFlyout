@@ -31,23 +31,63 @@
 
                 <!-- App Header -->
                 <StackPanel Grid.Row="0" Margin="0,0,0,16">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="30" Height="30"
-                                CornerRadius="8"
-                                Background="{StaticResource AccentBrush}"
-                                Margin="0,0,10,0">
-                            <TextBlock Text="📁" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="TrayFolderFlyout"
-                                       FontSize="15"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Папки панели задач"
-                                       FontSize="11"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="30" Height="30"
+                                    CornerRadius="8"
+                                    Background="{StaticResource AccentBrush}"
+                                    Margin="0,0,10,0">
+                                <TextBlock Text="📁" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="TrayFolderFlyout"
+                                           FontSize="15"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Папки панели задач"
+                                           FontSize="11"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
+
+                        <!-- Check updates button -->
+                        <Button Grid.Column="1"
+                                Style="{StaticResource SubtleIconButtonStyle}"
+                                ToolTip="Проверить обновления на GitHub"
+                                Click="CheckUpdatesButton_Click"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="🔄" FontSize="13"/>
+                        </Button>
+                    </Grid>
+
+                    <!-- Update banner (collapsed by default) -->
+                    <Border x:Name="UpdateBanner"
+                            Visibility="Collapsed"
+                            Margin="0,10,0,0"
+                            Padding="10,8"
+                            CornerRadius="8"
+                            Background="{StaticResource AccentSoftBrush}"
+                            BorderBrush="{StaticResource AccentBrush}"
+                            BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock x:Name="UpdateBannerText"
+                                       Text="Доступна новая версия!"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                            <TextBlock Margin="0,3,0,0"
+                                       FontSize="11"
+                                       Cursor="Hand"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       MouseLeftButtonUp="DownloadUpdate_Click">
+                                <Underline>Скачать обновление с GitHub</Underline> 🚀
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <!-- + Создать папку button -->
@@ -190,14 +230,16 @@
                                     </Button>
                                 </Grid>
 
-                                <Button Style="{StaticResource SubtleIconButtonStyle}"
+                                <Button Style="{StaticResource FluentButtonStyle}"
                                         HorizontalAlignment="Stretch"
-                                        Padding="4,4"
+                                        Height="Auto"
+                                        Padding="8,6"
+                                        Margin="0,2,0,0"
                                         Click="OpenConfigFolderButton_Click"
                                         ToolTip="Открыть папку с файлами настроек в Проводнике">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <TextBlock Text="📂" Margin="0,0,6,0" FontSize="11"/>
-                                        <TextBlock Text="Открыть папку конфига" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="📂" Margin="0,0,6,0" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Открыть папку с данными" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>

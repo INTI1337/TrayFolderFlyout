@@ -12,6 +12,9 @@ namespace TrayFolderFlyout.Setup
 {
     public static class InstallerLogic
     {
+        public const string AppVersion = "v1.1.0";
+        public const string DisplayVersion = "1.1.0";
+
         public static string InstallDirectory => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             @"Programs\TrayFolderFlyout");
@@ -35,6 +38,18 @@ namespace TrayFolderFlyout.Setup
         private const int SHCNE_ASSOCCHANGED = 0x08000000;
         private const uint SHCNF_IDLIST = 0x0000;
 
+        public static bool IsInstalled()
+        {
+            try
+            {
+                using var uninstallKey = Registry.CurrentUser.OpenSubKey(RegistryUninstallPath);
+                if (uninstallKey != null) return true;
+            }
+            catch { }
+
+            return File.Exists(TargetExePath);
+        }
+
         public static void KillRunningProcesses()
         {
             try
@@ -44,7 +59,7 @@ namespace TrayFolderFlyout.Setup
                     try
                     {
                         p.Kill();
-                        p.WaitForExit(1000);
+                        p.WaitForExit(1500);
                     }
                     catch { }
                 }
@@ -56,19 +71,21 @@ namespace TrayFolderFlyout.Setup
         {
             await Task.Run(() =>
             {
-                // 1. Terminate running instances
+                bool isUpdate = IsInstalled();
+
+                // 1. Terminate running instances so binaries are not locked
                 progress.Report((10, "Завершение работающих процессов..."));
                 KillRunningProcesses();
 
                 // 2. Prepare directory
-                progress.Report((25, "Создание каталога установки..."));
+                progress.Report((25, isUpdate ? "Подготовка каталога обновления..." : "Создание каталога установки..."));
                 if (!Directory.Exists(InstallDirectory))
                 {
                     Directory.CreateDirectory(InstallDirectory);
                 }
 
-                // 3. Extract embedded TrayFolderFlyout.exe
-                progress.Report((50, "Распаковка исполняемого файла..."));
+                // 3. Extract embedded TrayFolderFlyout.exe (updating binaries only, preserving all user profiles)
+                progress.Report((50, isUpdate ? "Обновление исполняемого файла..." : "Распаковка исполняемого файла..."));
                 ExtractEmbeddedApp(TargetExePath);
 
                 // 4. Copy self as Uninstall.exe
@@ -110,7 +127,7 @@ namespace TrayFolderFlyout.Setup
                             {
                                 runKey.SetValue("TrayFolderFlyout", $"\"{TargetExePath}\" --daemon");
                             }
-                            else
+                            else if (!isUpdate)
                             {
                                 runKey.DeleteValue("TrayFolderFlyout", false);
                             }
@@ -123,7 +140,7 @@ namespace TrayFolderFlyout.Setup
                         {
                             uninstallKey.SetValue("DisplayName", "TrayFolderFlyout");
                             uninstallKey.SetValue("DisplayIcon", $"{TargetExePath},0");
-                            uninstallKey.SetValue("DisplayVersion", "1.0.0");
+                            uninstallKey.SetValue("DisplayVersion", DisplayVersion);
                             uninstallKey.SetValue("Publisher", "TrayFolderFlyout");
                             uninstallKey.SetValue("InstallLocation", InstallDirectory);
                             uninstallKey.SetValue("UninstallString", $"\"{UninstallExePath}\" --uninstall");
@@ -149,7 +166,7 @@ namespace TrayFolderFlyout.Setup
                 }
                 catch { }
 
-                progress.Report((100, "Установка успешно завершена!"));
+                progress.Report((100, isUpdate ? "Обновление успешно завершено!" : "Установка успешно завершена!"));
             });
         }
 

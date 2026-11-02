@@ -197,26 +197,28 @@ namespace TrayFolderFlyout.Views
                 panel.Columns = TargetColumns;
             }
 
+            bool showLabels = _group?.ShowLabels ?? true;
+
             if (!string.IsNullOrEmpty(_currentSubfolderPath) && Directory.Exists(_currentSubfolderPath))
             {
-                LoadDirectoryContents(_currentSubfolderPath);
+                LoadDirectoryContents(_currentSubfolderPath, showLabels);
             }
             else if (_group != null && _group.Type == FolderType.Synchronized && !string.IsNullOrEmpty(_group.SyncPath) && Directory.Exists(_group.SyncPath))
             {
-                LoadDirectoryContents(_group.SyncPath);
+                LoadDirectoryContents(_group.SyncPath, showLabels);
             }
             else if (_group != null)
             {
                 foreach (var item in _group.Items)
                 {
-                    _items.Add(new FlyoutItemViewModel(item));
+                    _items.Add(new FlyoutItemViewModel(item, showLabels));
                 }
             }
 
             EmptyStateText.Visibility = _items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void LoadDirectoryContents(string dirPath)
+        private void LoadDirectoryContents(string dirPath, bool showLabels)
         {
             try
             {
@@ -231,7 +233,7 @@ namespace TrayFolderFlyout.Views
                     {
                         Name = d.Name,
                         TargetPath = d.FullName
-                    }));
+                    }, showLabels));
                 }
 
                 var files = Directory.GetFiles(dirPath)
@@ -250,7 +252,7 @@ namespace TrayFolderFlyout.Views
                     {
                         Name = displayName,
                         TargetPath = f.FullName
-                    }));
+                    }, showLabels));
                 }
             }
             catch { }

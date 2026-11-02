@@ -183,20 +183,22 @@
 
             <!-- Center Content -->
             <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24,0">
-                <!-- App Icon -->
-                <Image Source="pack://application:,,,/Assets/app.ico" Width="48" Height="48" 
-                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                <!-- App Icon with High Quality scaling -->
+                <Image Source="pack://application:,,,/Assets/app.ico" Width="52" Height="52" 
+                       HorizontalAlignment="Center" Margin="0,0,0,8"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       SnapsToDevicePixels="True"/>
 
                 <!-- Title & Version -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="Установка TrayFolderFlyout" Foreground="#F4F4F5" FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="HeaderTitleText" Text="Установка TrayFolderFlyout" Foreground="#F4F4F5" FontSize="16" FontWeight="SemiBold"/>
                     <Border Background="#27272A" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="v1.0" Foreground="#A1A1AA" FontSize="11" FontWeight="Bold"/>
+                        <TextBlock x:Name="VersionText" Text="v1.1.0" Foreground="#A1A1AA" FontSize="11" FontWeight="Bold"/>
                     </Border>
                 </StackPanel>
 
                 <!-- Subtitle -->
-                <TextBlock Text="Кастомные компактные папки на панели задач Windows 11" 
+                <TextBlock x:Name="HeaderSubtitleText" Text="Кастомные компактные папки на панели задач Windows 11" 
                            Foreground="#A1A1AA" FontSize="12" HorizontalAlignment="Center" Margin="0,4,0,14"/>
 
                 <!-- Options Checkboxes (Visible before install) -->
@@ -207,7 +209,7 @@
 
                 <!-- Progress / Status (Visible during & after install) -->
                 <StackPanel x:Name="ProgressPanel" Visibility="Collapsed" Width="360" Margin="0,4,0,0">
-                    <TextBlock x:Name="StatusTextBlock" Text="Подготовка к установке..." Foreground="#D4D4D8" FontSize="12" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="StatusTextBlock" Text="Подготовка..." Foreground="#D4D4D8" FontSize="12" Margin="0,0,0,6"/>
                     <ProgressBar x:Name="InstallProgressBar" Height="6" Maximum="100" Value="0"/>
                 </StackPanel>
             </StackPanel>

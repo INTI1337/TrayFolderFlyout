@@ -9,9 +9,29 @@ namespace TrayFolderFlyout.Setup
 {
     public partial class MainWindow : Window
     {
+        private readonly bool _isUpdate;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _isUpdate = InstallerLogic.IsInstalled();
+            VersionText.Text = InstallerLogic.AppVersion;
+
+            if (_isUpdate)
+            {
+                Title = $"Обновление TrayFolderFlyout {InstallerLogic.AppVersion}";
+                HeaderTitleText.Text = "Обновление TrayFolderFlyout";
+                HeaderSubtitleText.Text = "Обновление до актуальной версии";
+                InstallButton.Content = "Обновить";
+            }
+            else
+            {
+                Title = $"Установка TrayFolderFlyout {InstallerLogic.AppVersion}";
+                HeaderTitleText.Text = "Установка TrayFolderFlyout";
+                HeaderSubtitleText.Text = "Кастомные компактные папки на панели задач Windows 11";
+                InstallButton.Content = "Установить";
+            }
         }
 
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -53,13 +73,15 @@ namespace TrayFolderFlyout.Setup
                 InstallButton.Visibility = Visibility.Collapsed;
                 LaunchButton.Visibility = Visibility.Visible;
 
-                StatusTextBlock.Text = "✅ TrayFolderFlyout успешно установлен!";
+                StatusTextBlock.Text = _isUpdate
+                    ? "✅ TrayFolderFlyout успешно обновлён!"
+                    : "✅ TrayFolderFlyout успешно установлен!";
                 StatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129));
                 InstallProgressBar.Foreground = new SolidColorBrush(Color.FromRgb(16, 185, 129));
             }
             catch (Exception ex)
             {
-                StatusTextBlock.Text = $"Ошибка установки: {ex.Message}";
+                StatusTextBlock.Text = $"Ошибка: {ex.Message}";
                 StatusTextBlock.Foreground = new SolidColorBrush(Color.FromRgb(244, 63, 94));
                 InstallButton.IsEnabled = true;
                 CancelButton.IsEnabled = true;

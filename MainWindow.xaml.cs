@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -100,6 +101,8 @@ namespace TrayFolderFlyout
             {
                 GroupsListBox.SelectedIndex = 0;
             }
+
+            _ = CheckForUpdatesAsync(silent: true);
         }
 
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -920,6 +923,67 @@ namespace TrayFolderFlyout
             {
                 MessageBox.Show($"Не удалось открыть папку: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        private string? _latestReleaseUrl;
+
+        private async Task CheckForUpdatesAsync(bool silent)
+        {
+            try
+            {
+                var update = await UpdateService.CheckForUpdatesAsync();
+                if (update.IsUpdateAvailable)
+                {
+                    _latestReleaseUrl = update.ReleaseUrl;
+                    UpdateBannerText.Text = $"Доступна новая версия {update.LatestVersion}!";
+                    UpdateBanner.Visibility = Visibility.Visible;
+
+                    if (!silent)
+                    {
+                        var res = MessageBox.Show(
+                            $"Доступна новая версия TrayFolderFlyout {update.LatestVersion}!\n\nОткрыть страницу скачивания на GitHub?",
+                            "Доступно обновление",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Information);
+                        if (res == MessageBoxResult.Yes)
+                        {
+                            UpdateService.OpenReleasePage(update.ReleaseUrl);
+                        }
+                    }
+                }
+                else
+                {
+                    if (!silent)
+                    {
+                        MessageBox.Show(
+                            $"У вас установлена самая актуальная версия {UpdateService.CurrentVersion}.",
+                            "Обновлений не найдено",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch
+            {
+                if (!silent)
+                {
+                    MessageBox.Show(
+                        "Не удалось связаться с сервером обновлений GitHub. Проверьте подключение к интернету.",
+                        "Ошибка проверки обновлений",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                }
+            }
+        }
+
+        private async void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
+        {
+            await CheckForUpdatesAsync(silent: false);
+        }
+
+        private void DownloadUpdate_Click(object sender, MouseButtonEventArgs e)
+        {
+            UpdateService.OpenReleasePage(_latestReleaseUrl);
         }
 
         private static T? FindVisualAncestor<T>(DependencyObject? current) where T : DependencyObject
