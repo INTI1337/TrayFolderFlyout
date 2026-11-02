@@ -80,8 +80,7 @@
                                Width="16" Height="16"
                                Margin="0,0,8,0"
                                VerticalAlignment="Center"
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               SnapsToDevicePixels="True"/>
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
                         <TextBlock x:Name="HeaderTitleText"
                                    Text="Папка"
                                    FontSize="12"
@@ -120,13 +119,14 @@
                 <!-- 2. ITEMS GRID CONTAINER -->
                 <ScrollViewer Grid.Row="2"
                               x:Name="ItemsScrollViewer"
-                              VerticalScrollBarVisibility="Auto"
+                              MaxHeight="480"
                               HorizontalScrollBarVisibility="Disabled"
-                              Focusable="False">
+                              VerticalScrollBarVisibility="Auto"
+                              FocusVisualStyle="{x:Null}">
                     <ItemsControl x:Name="ItemsHost">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Columns="{Binding TargetColumns, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <UniformGrid x:Name="ItemsGrid" Columns="4"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -134,32 +134,27 @@
                                 <Button Style="{StaticResource FluentButtonStyle}"
                                         Width="{Binding CardWidth}"
                                         Height="{Binding CardHeight}"
-                                        Margin="3"
                                         Padding="2"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
+                                        Margin="2"
                                         Click="Item_Click"
                                         MouseRightButtonUp="Item_RightClick"
                                         MouseDown="Item_MouseDown"
                                         ToolTip="{Binding TargetPath}">
-                                    <Grid Margin="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Grid Margin="3">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
-                                        <!-- Item Icon (32x32 with labels, 44x44 in IconOnly mode) -->
+                                        <!-- Item Icon -->
                                         <Image Grid.Row="0"
                                                Source="{Binding Icon}"
                                                Width="{Binding IconSize}" Height="{Binding IconSize}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
-                                               RenderOptions.BitmapScalingMode="HighQuality"
-                                               SnapsToDevicePixels="True"/>
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
 
-                                        <!-- Item Label (Collapsed if IconOnly) -->
+                                        <!-- Item Label (if enabled) -->
                                         <TextBlock Grid.Row="1"
                                                    Text="{Binding Name}"
                                                    Visibility="{Binding LabelVisibility}"
@@ -169,7 +164,7 @@
                                                    TextAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    TextTrimming="CharacterEllipsis"
-                                                   MaxHeight="32"
+                                                   MaxHeight="28"
                                                    LineHeight="14"
                                                    Margin="0,3,0,0"/>
                                     </Grid>

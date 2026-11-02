@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -19,22 +18,17 @@ using TrayFolderFlyout.ViewModels;
 
 namespace TrayFolderFlyout.Views
 {
-    public partial class FlyoutWindow : Window, INotifyPropertyChanged
+    public partial class FlyoutWindow : Window
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         public string? CurrentGroupId { get; private set; }
         public long OpenedTimestamp { get; private set; }
         public long ClosedTimestamp { get; private set; }
-
-        public int TargetColumns => Math.Clamp(_group?.Columns ?? 5, 3, 6);
 
         private AppConfig _config = null!;
         private FolderGroup _group = null!;
         private readonly ObservableCollection<FlyoutItemViewModel> _items = new();
         private readonly Stack<string> _navigationStack = new();
         private string? _currentSubfolderPath;
-
         private int _lastCursorX;
         private int _lastCursorY;
 
@@ -49,8 +43,6 @@ namespace TrayFolderFlyout.Views
             ItemsHost.ItemsSource = _items;
 
             SourceInitialized += FlyoutWindow_SourceInitialized;
-            SizeChanged += FlyoutWindow_SizeChanged;
-            ContentRendered += FlyoutWindow_ContentRendered;
             Closing += (s, e) =>
             {
                 e.Cancel = true;
@@ -90,27 +82,33 @@ namespace TrayFolderFlyout.Views
             }
 
             _group = group;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetColumns)));
             UpdateHeader(_group.Name, _group.CustomIconPath);
             LoadCurrentView();
 
-            // Guarantee size is determined by content
-            SizeToContent = SizeToContent.WidthAndHeight;
-
-            // Initially set Opacity = 0 to prevent any visible jump/flicker during measurement
+            // Перед показом выставляй Opacity = 0
             Opacity = 0.0;
 
-            // 1. Initial measurement and positioning using DesiredSize
-            PositionWindow(cursorX, cursorY);
-
-            // 2. Show window and perform layout pass
+            // Вызывай Show() и сразу this.UpdateLayout() — теперь визуальное дерево и UniformGrid гарантированно созданы даже при самом первом запуске!
             Show();
-            UpdateLayout();
+            this.UpdateLayout();
 
-            // 3. Re-calculate PositionWindow with accurate rendered dimensions
+            // Сразу после этого находи UniformGrid через FindVisualChild<UniformGrid>(ItemsHost) и выставляй panel.Columns = Math.Clamp(_group.Columns, 3, 6) и panel.VerticalAlignment = VerticalAlignment.Top
+            var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
+            if (panel != null)
+            {
+                panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+                panel.VerticalAlignment = VerticalAlignment.Top;
+            }
+
+            // Сбрось авторазмер окна, чтобы оно точно подогналось под текущую папку (будь то Soft на 31 элемент или Games на 10 элементов):
+            this.SizeToContent = SizeToContent.Manual;
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+            this.UpdateLayout();
+
+            // Теперь, когда ActualWidth и ActualHeight посчитаны со 100% точностью, вызови оригинальный метод PositionWindow(cursorX, cursorY)
             PositionWindow(cursorX, cursorY);
 
-            // Bring to foreground
+            // Make visible and bring to foreground
             var hwnd = new WindowInteropHelper(this).Handle;
             Win32.SetForegroundWindow(hwnd);
             try { Activate(); } catch { }
@@ -118,7 +116,8 @@ namespace TrayFolderFlyout.Views
 
             OpenedTimestamp = Environment.TickCount64;
 
-            // 4. Smoothly fade in and slide up to Opacity = 1
+            // Выстави Opacity = 1
+            Opacity = 1.0;
             PlayEnterAnimation();
         }
 
@@ -164,24 +163,19 @@ namespace TrayFolderFlyout.Views
             if (updated != null)
             {
                 _group = updated;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetColumns)));
                 UpdateHeader(_group.Name, _group.CustomIconPath);
                 LoadCurrentView();
-            }
-        }
 
-        private void FlyoutWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (!_isClosingAnimation && (e.WidthChanged || e.HeightChanged) && ActualWidth > 0 && ActualHeight > 0)
-            {
-                PositionWindow(_lastCursorX, _lastCursorY);
-            }
-        }
+                var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
+                if (panel != null)
+                {
+                    panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+                    panel.VerticalAlignment = VerticalAlignment.Top;
+                }
 
-        private void FlyoutWindow_ContentRendered(object? sender, EventArgs e)
-        {
-            if (Visibility == Visibility.Visible && !_isClosingAnimation)
-            {
+                this.SizeToContent = SizeToContent.Manual;
+                this.SizeToContent = SizeToContent.WidthAndHeight;
+                this.UpdateLayout();
                 PositionWindow(_lastCursorX, _lastCursorY);
             }
         }
@@ -190,11 +184,12 @@ namespace TrayFolderFlyout.Views
         {
             _items.Clear();
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TargetColumns)));
+            // Set grid columns (3 to 6)
             var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
             if (panel != null)
             {
-                panel.Columns = TargetColumns;
+                panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+                panel.VerticalAlignment = VerticalAlignment.Top;
             }
 
             bool showLabels = _group?.ShowLabels ?? true;
@@ -268,75 +263,36 @@ namespace TrayFolderFlyout.Views
             _lastCursorX = pt.X;
             _lastCursorY = pt.Y;
 
-            Win32.GetMonitorAndWorkArea(pt, out RECT rcMonitor, out RECT rcWork);
+            var workArea = Win32.GetWorkAreaForPoint(pt);
+            var source = PresentationSource.FromVisual(this);
+            double dpiScaleX = source?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
+            double dpiScaleY = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
 
-            var dpi = VisualTreeHelper.GetDpi(this);
-            double dpiScaleX = dpi.DpiScaleX > 0 ? dpi.DpiScaleX : 1.0;
-            double dpiScaleY = dpi.DpiScaleY > 0 ? dpi.DpiScaleY : 1.0;
-
-            double workLeft = rcWork.Left / dpiScaleX;
-            double workTop = rcWork.Top / dpiScaleY;
-            double workRight = rcWork.Right / dpiScaleX;
-            double workBottom = rcWork.Bottom / dpiScaleY;
-
-            double maxAvailableHeight = workBottom - workTop - 24.0;
-            double maxAvailableWidth = workRight - workLeft - 24.0;
-            this.MaxHeight = maxAvailableHeight;
-            this.MaxWidth = maxAvailableWidth;
-            if (ItemsScrollViewer != null)
-            {
-                ItemsScrollViewer.MaxHeight = Math.Max(100.0, maxAvailableHeight - 80.0);
-            }
+            double screenLeftDip = workArea.Left / dpiScaleX;
+            double screenRightDip = workArea.Right / dpiScaleX;
+            double screenBottomDip = workArea.Bottom / dpiScaleY;
+            double screenTopDip = workArea.Top / dpiScaleY;
 
             double cursorXDip = pt.X / dpiScaleX;
-            double cursorYDip = pt.Y / dpiScaleY;
 
-            // Force visual tree template application and content measurement
-            ItemsHost.ApplyTemplate();
-            this.Measure(new Size(maxAvailableWidth, maxAvailableHeight));
+            UpdateLayout();
 
-            double flyoutWidth = this.ActualWidth > 50 ? this.ActualWidth : (this.DesiredSize.Width > 50 ? this.DesiredSize.Width : 420);
-            double flyoutHeight = this.ActualHeight > 50 ? this.ActualHeight : (this.DesiredSize.Height > 50 ? this.DesiredSize.Height : 350);
+            double flyoutWidth = ActualWidth > 0 ? ActualWidth : 340;
+            double flyoutHeight = ActualHeight > 0 ? ActualHeight : 240;
 
-            double left, top;
+            // Center horizontally on cursor, clamp with 12px margin
+            double left = cursorXDip - (flyoutWidth / 2.0);
+            left = Math.Max(screenLeftDip + 12.0, Math.Min(left, screenRightDip - flyoutWidth - 12.0));
 
-            // Determine taskbar position by comparing work area with full monitor rectangle:
-            // 1. Taskbar at TOP: work area starts below monitor top
-            // 2. Taskbar at LEFT: work area starts right of monitor left
-            // 3. Taskbar at RIGHT: work area ends left of monitor right
-            // 4. Taskbar at BOTTOM: work area ends above monitor bottom (standard)
-            if (rcWork.Top > rcMonitor.Top)
+            // Position 12px above taskbar
+            double top = screenBottomDip - flyoutHeight - 12.0;
+            if (top < screenTopDip + 12.0)
             {
-                // Top taskbar: position flyout 12px below top of work area, centered horizontally on cursor
-                top = workTop + 12.0;
-                left = cursorXDip - (flyoutWidth / 2.0);
-            }
-            else if (rcWork.Left > rcMonitor.Left)
-            {
-                // Left taskbar: position flyout 12px right of left of work area, centered vertically on cursor
-                left = workLeft + 12.0;
-                top = cursorYDip - (flyoutHeight / 2.0);
-            }
-            else if (rcWork.Right < rcMonitor.Right)
-            {
-                // Right taskbar: position flyout 12px left of right of work area, centered vertically on cursor
-                left = workRight - flyoutWidth - 12.0;
-                top = cursorYDip - (flyoutHeight / 2.0);
-            }
-            else
-            {
-                // Bottom taskbar (default): bottom edge of the window is ALWAYS exactly 12px above taskbar
-                top = workBottom - flyoutHeight - 12.0;
-                if (top < workTop + 12.0) top = workTop + 12.0;
-                left = cursorXDip - (flyoutWidth / 2.0);
+                top = screenTopDip + 12.0;
             }
 
-            // Strictly clamp within work area bounds with 12px padding on all four sides
-            left = Math.Max(workLeft + 12.0, Math.Min(left, workRight - flyoutWidth - 12.0));
-            top = Math.Max(workTop + 12.0, Math.Min(top, workBottom - flyoutHeight - 12.0));
-
-            this.Left = left;
-            this.Top = top;
+            Left = left;
+            Top = top;
         }
 
         private void PlayEnterAnimation()
@@ -352,7 +308,6 @@ namespace TrayFolderFlyout.Views
             };
 
             fadeIn.Completed += (s, e) => Opacity = 1.0;
-
             Opacity = 0.0;
             BeginAnimation(OpacityProperty, fadeIn);
             FlyoutTransform.BeginAnimation(TranslateTransform.YProperty, slideUp);
@@ -396,6 +351,18 @@ namespace TrayFolderFlyout.Views
                 _currentSubfolderPath = vm.TargetPath;
                 UpdateHeader(vm.Name, null);
                 LoadCurrentView();
+
+                var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
+                if (panel != null)
+                {
+                    panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+                    panel.VerticalAlignment = VerticalAlignment.Top;
+                }
+
+                this.SizeToContent = SizeToContent.Manual;
+                this.SizeToContent = SizeToContent.WidthAndHeight;
+                this.UpdateLayout();
+                PositionWindow(_lastCursorX, _lastCursorY);
                 return;
             }
 
@@ -439,6 +406,18 @@ namespace TrayFolderFlyout.Views
                 }
 
                 LoadCurrentView();
+
+                var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
+                if (panel != null)
+                {
+                    panel.Columns = Math.Clamp(_group.Columns, 3, 6);
+                    panel.VerticalAlignment = VerticalAlignment.Top;
+                }
+
+                this.SizeToContent = SizeToContent.Manual;
+                this.SizeToContent = SizeToContent.WidthAndHeight;
+                this.UpdateLayout();
+                PositionWindow(_lastCursorX, _lastCursorY);
             }
         }
 
