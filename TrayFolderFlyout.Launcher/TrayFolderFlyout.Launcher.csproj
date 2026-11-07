@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>TrayFolderFlyout.Launcher</AssemblyName>
+    <RootNamespace>TrayFolderFlyout.Launcher</RootNamespace>
+    <ApplicationTitle>TrayFolderFlyout Launcher</ApplicationTitle>
+    <ApplicationIcon>..\Assets\app.ico</ApplicationIcon>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

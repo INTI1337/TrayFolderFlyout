@@ -25,7 +25,9 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            10.0.x
 
       - name: Build Portable Application (Single-File)
         shell: pwsh
@@ -37,9 +39,14 @@ jobs:
             -p:DebugType=none `
             -p:DebugSymbols=false `
             -o ./Publish/App
-          New-Item -ItemType Directory -Force -Path ./Release
+          New-Item -ItemType Directory -Force -Path ./Release/portable
+          # Tiny NativeAOT launcher: a taskbar click becomes one IPC message in ~12 ms
+          # instead of a full WPF process start (~450 ms measured).
+          dotnet publish TrayFolderFlyout.Launcher/TrayFolderFlyout.Launcher.csproj -c Release -r win-x64 -o ./Publish/App
           Copy-Item ./Publish/App/TrayFolderFlyout.exe ./Release/TrayFolderFlyout_Portable.exe
-          Compress-Archive -Path ./Release/TrayFolderFlyout_Portable.exe -DestinationPath ./Release/TrayFolderFlyout_Portable.zip -Force
+          Copy-Item ./Publish/App/TrayFolderFlyout.exe ./Release/portable/
+          Copy-Item ./Publish/App/TrayFolderFlyout.Launcher.exe ./Release/portable/
+          Compress-Archive -Path ./Release/portable/* -DestinationPath ./Release/TrayFolderFlyout_Portable.zip -Force
 
       - name: Build Setup Installer
         shell: pwsh

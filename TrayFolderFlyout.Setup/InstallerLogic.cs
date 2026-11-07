@@ -20,6 +20,7 @@ namespace TrayFolderFlyout.Setup
             @"Programs\TrayFolderFlyout");
 
         public static string TargetExePath => Path.Combine(InstallDirectory, "TrayFolderFlyout.exe");
+        public static string LauncherExePath => Path.Combine(InstallDirectory, "TrayFolderFlyout.Launcher.exe");
         public static string UninstallExePath => Path.Combine(InstallDirectory, "Uninstall.exe");
 
         public static string StartMenuShortcutPath => Path.Combine(
@@ -86,7 +87,15 @@ namespace TrayFolderFlyout.Setup
 
                 // 3. Extract embedded TrayFolderFlyout.exe (updating binaries only, preserving all user profiles)
                 progress.Report((50, isUpdate ? "Обновление исполняемого файла..." : "Распаковка исполняемого файла..."));
-                ExtractEmbeddedApp(TargetExePath);
+                ExtractEmbeddedFile(TargetExePath);
+
+                // The tiny NativeAOT launcher turns a taskbar click into an IPC message in ~12 ms.
+                // It is optional: without it the app falls back to the slower in-process launch path.
+                try
+                {
+                    ExtractEmbeddedFile(LauncherExePath);
+                }
+                catch { }
 
                 // 4. Copy self as Uninstall.exe
                 progress.Report((70, "Настройка модуля удаления..."));
@@ -170,15 +179,16 @@ namespace TrayFolderFlyout.Setup
             });
         }
 
-        private static void ExtractEmbeddedApp(string destinationPath)
+        private static void ExtractEmbeddedFile(string destinationPath)
         {
+            string fileName = Path.GetFileName(destinationPath);
             var asm = Assembly.GetExecutingAssembly();
             string? resourceName = asm.GetManifestResourceNames()
-                .FirstOrDefault(n => n.EndsWith("TrayFolderFlyout.exe", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(n => n.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
 
             if (string.IsNullOrEmpty(resourceName))
             {
-                throw new InvalidOperationException("Встроенный файл приложения TrayFolderFlyout.exe не найден в установщике.");
+                throw new InvalidOperationException($"Встроенный файл {fileName} не найден в установщике.");
             }
 
             using var srcStream = asm.GetManifestResourceStream(resourceName);
