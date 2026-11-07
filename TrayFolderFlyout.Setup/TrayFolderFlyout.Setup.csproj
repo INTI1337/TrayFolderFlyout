@@ -17,6 +17,7 @@
   <ItemGroup>
     <Resource Include="..\Assets\app.ico" Link="Assets\app.ico" />
     <EmbeddedResource Include="..\Publish\App\TrayFolderFlyout.exe" Link="TrayFolderFlyout.exe" />
+    <EmbeddedResource Include="..\Publish\App\TrayFolderFlyout.Launcher.exe" Link="TrayFolderFlyout.Launcher.exe" />
   </ItemGroup>
 
 </Project>

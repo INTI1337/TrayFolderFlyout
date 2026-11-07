@@ -71,6 +71,9 @@ namespace TrayFolderFlyout.Views
 
         public void ShowFlyout(string groupId, int cursorX = 0, int cursorY = 0)
         {
+            long showStartTick = Environment.TickCount64;
+            App.Log($"SHOW_START: group={groupId}, tick={showStartTick}");
+
             CurrentGroupId = groupId;
             _navigationStack.Clear();
             _currentSubfolderPath = null;
@@ -124,6 +127,23 @@ namespace TrayFolderFlyout.Views
             // Выстави Opacity = 1
             Opacity = 1.0;
             PlayEnterAnimation();
+            BeginFirstFrameProbe(showStartTick);
+        }
+
+        /// <summary>
+        /// Diagnostics only: logs the first composited frame, i.e. the moment the flyout is actually on screen.
+        /// </summary>
+        private void BeginFirstFrameProbe(long showStartTick)
+        {
+            EventHandler? handler = null;
+            handler = (s, e) =>
+            {
+                CompositionTarget.Rendering -= handler;
+                long now = Environment.TickCount64;
+                long clickTick = App.LastClientCreatedTick;
+                App.Log($"FIRST_FRAME: group={CurrentGroupId}, tick={now}, showMs={now - showStartTick}, sinceClickMs={(clickTick > 0 ? now - clickTick : -1)}");
+            };
+            CompositionTarget.Rendering += handler;
         }
 
         public void HideFlyout()

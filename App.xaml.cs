@@ -8,6 +8,34 @@ using TrayFolderFlyout.Views;
 
 namespace TrayFolderFlyout
 {
+    /// <summary>
+    /// Diagnostics only: captures the moment the OS created this process, so the daemon can
+    /// compute the full click -> visible frame latency across two processes.
+    /// </summary>
+    internal static class BootClock
+    {
+        /// <summary>Monotonic tick (ms since boot) at which the OS created this process.</summary>
+        public static long ProcessCreatedTick { get; private set; }
+
+        [System.Runtime.CompilerServices.ModuleInitializer]
+        internal static void Init()
+        {
+            long firstLine = Environment.TickCount64;
+            try
+            {
+                var proc = System.Diagnostics.Process.GetCurrentProcess();
+                double ageMs = (DateTime.Now - proc.StartTime).TotalMilliseconds;
+                ProcessCreatedTick = Math.Max(0, firstLine - (long)ageMs);
+            }
+            catch
+            {
+                ProcessCreatedTick = firstLine;
+            }
+
+            App.Log($"BOOT: created={ProcessCreatedTick}, moduleInit={firstLine}, hostInitMs={firstLine - ProcessCreatedTick}");
+        }
+    }
+
     public partial class App : Application
     {
         private static Mutex? _singleInstanceMutex;
@@ -16,6 +44,9 @@ namespace TrayFolderFlyout
 
         private static FlyoutWindow? _flyoutWindow;
         private static MainWindow? _mainWindow;
+
+        /// <summary>Diagnostics: monotonic tick of the client process creation for the last request.</summary>
+        public static long LastClientCreatedTick { get; private set; }
 
         public static void Log(string msg)
         {
@@ -104,7 +135,9 @@ namespace TrayFolderFlyout
                     Action = !string.IsNullOrEmpty(flyoutGroupId) ? "ToggleFlyout" : "OpenManager",
                     GroupId = flyoutGroupId ?? configGroupId,
                     CursorX = pt.X,
-                    CursorY = pt.Y
+                    CursorY = pt.Y,
+                    ClientCreatedTick = BootClock.ProcessCreatedTick,
+                    ClientSentTick = Environment.TickCount64
                 };
 
                 Log($"Client instance: sending IPC command to host (action={msg.Action}, group={msg.GroupId ?? "null"})...");
@@ -190,7 +223,9 @@ namespace TrayFolderFlyout
 
         private void OnIpcMessageReceived(IpcMessage msg)
         {
-            Log($"OnIpcMessageReceived: Action={msg.Action}, GroupId={msg.GroupId}");
+            long now = Environment.TickCount64;
+            LastClientCreatedTick = msg.ClientCreatedTick;
+            Log($"OnIpcMessageReceived: Action={msg.Action}, GroupId={msg.GroupId}, ipcMs={(msg.ClientSentTick > 0 ? now - msg.ClientSentTick : -1)}, sinceLaunchMs={(msg.ClientCreatedTick > 0 ? now - msg.ClientCreatedTick : -1)}");
             Dispatcher.InvokeAsync(() =>
             {
                 try

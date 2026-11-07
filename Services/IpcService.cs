@@ -13,6 +13,10 @@ namespace TrayFolderFlyout.Services
         public string? GroupId { get; set; }
         public int CursorX { get; set; }
         public int CursorY { get; set; }
+
+        // Diagnostics: monotonic ticks used to measure click -> visible latency across processes
+        public long ClientCreatedTick { get; set; }
+        public long ClientSentTick { get; set; }
     }
 
     public class IpcService
