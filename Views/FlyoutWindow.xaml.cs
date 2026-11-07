@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using Microsoft.Win32;
 using TrayFolderFlyout.Models;
 using TrayFolderFlyout.Native;
@@ -36,6 +37,9 @@ namespace TrayFolderFlyout.Views
         private bool _isDragActive;
         private bool _isModalOpen;
         private bool _isClosingAnimation;
+
+        private bool _isHeaderOpen;
+        private DispatcherTimer? _headerAutoHideTimer;
 
         public FlyoutWindow(string? initialGroupId = null)
         {
@@ -71,6 +75,7 @@ namespace TrayFolderFlyout.Views
             _navigationStack.Clear();
             _currentSubfolderPath = null;
             _isClosingAnimation = false;
+            ResetHeader();
 
             _config = ConfigService.Instance.LoadConfig();
             var group = _config.Groups.FirstOrDefault(g => g.Id == groupId) ?? _config.Groups.FirstOrDefault();
@@ -145,6 +150,116 @@ namespace TrayFolderFlyout.Views
 
             BeginAnimation(OpacityProperty, fadeOut);
             FlyoutTransform.BeginAnimation(TranslateTransform.YProperty, slideDown);
+        }
+
+        /// <summary>While inside a subfolder the header is pinned: the back button has to stay reachable.</summary>
+        private bool HeaderLocked => !string.IsNullOrEmpty(_currentSubfolderPath);
+
+        private void ResetHeader()
+        {
+            _headerAutoHideTimer?.Stop();
+            _isHeaderOpen = false;
+
+            HeaderOverlay.BeginAnimation(OpacityProperty, null);
+            HeaderTransform.BeginAnimation(TranslateTransform.YProperty, null);
+            HeaderOverlay.Opacity = 0;
+            HeaderTransform.Y = -8;
+            HeaderOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void TopGrip_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_isHeaderOpen) HideHeader();
+            else ShowHeader();
+        }
+
+        private void TopGrip_MouseEnter(object sender, MouseEventArgs e) => AnimateGrip(0.7);
+
+        private void TopGrip_MouseLeave(object sender, MouseEventArgs e) => AnimateGrip(0.0);
+
+        private void AnimateGrip(double target)
+        {
+            GripHandle.BeginAnimation(OpacityProperty, new DoubleAnimation(target, TimeSpan.FromMilliseconds(120))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+        }
+
+        private void HeaderOverlay_MouseEnter(object sender, MouseEventArgs e) => _headerAutoHideTimer?.Stop();
+
+        private void HeaderOverlay_MouseLeave(object sender, MouseEventArgs e) => ScheduleHeaderAutoHide();
+
+        private void ScheduleHeaderAutoHide()
+        {
+            if (HeaderLocked || !_isHeaderOpen) return;
+
+            if (_headerAutoHideTimer == null)
+            {
+                _headerAutoHideTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
+                _headerAutoHideTimer.Tick += (s, e) =>
+                {
+                    _headerAutoHideTimer?.Stop();
+                    HideHeader();
+                };
+            }
+
+            _headerAutoHideTimer.Stop();
+            _headerAutoHideTimer.Start();
+        }
+
+        private void ShowHeader()
+        {
+            _headerAutoHideTimer?.Stop();
+            if (_isHeaderOpen) return;
+
+            _isHeaderOpen = true;
+            HeaderOverlay.Visibility = Visibility.Visible;
+
+            var fadeIn = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(110))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            var slideDown = new DoubleAnimation(-8.0, 0.0, TimeSpan.FromMilliseconds(110))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            HeaderOverlay.BeginAnimation(OpacityProperty, fadeIn);
+            HeaderTransform.BeginAnimation(TranslateTransform.YProperty, slideDown);
+        }
+
+        private void HideHeader(bool force = false)
+        {
+            _headerAutoHideTimer?.Stop();
+            if (!_isHeaderOpen) return;
+            if (!force && HeaderLocked) return;
+
+            _isHeaderOpen = false;
+
+            var fadeOut = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(90))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            var slideUp = new DoubleAnimation(0.0, -8.0, TimeSpan.FromMilliseconds(90))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            fadeOut.Completed += (s, e) =>
+            {
+                if (_isHeaderOpen) return;
+
+                HeaderOverlay.BeginAnimation(OpacityProperty, null);
+                HeaderTransform.BeginAnimation(TranslateTransform.YProperty, null);
+                HeaderOverlay.Opacity = 0;
+                HeaderTransform.Y = -8;
+                HeaderOverlay.Visibility = Visibility.Collapsed;
+            };
+
+            HeaderOverlay.BeginAnimation(OpacityProperty, fadeOut);
+            HeaderTransform.BeginAnimation(TranslateTransform.YProperty, slideUp);
         }
 
         private void UpdateHeader(string title, string? iconPath)
@@ -352,6 +467,9 @@ namespace TrayFolderFlyout.Views
                 UpdateHeader(vm.Name, null);
                 LoadCurrentView();
 
+                // Inside a subfolder the back button must stay reachable.
+                ShowHeader();
+
                 var panel = FindVisualChild<System.Windows.Controls.Primitives.UniformGrid>(ItemsHost);
                 if (panel != null)
                 {
@@ -399,6 +517,7 @@ namespace TrayFolderFlyout.Views
                 if (string.IsNullOrEmpty(_currentSubfolderPath))
                 {
                     UpdateHeader(_group.Name, _group.CustomIconPath);
+                    HideHeader(force: true);
                 }
                 else
                 {
@@ -683,6 +802,13 @@ namespace TrayFolderFlyout.Views
         {
             if (e.Key == Key.Escape)
             {
+                // Esc first puts the header away, and only then closes the flyout.
+                if (_isHeaderOpen && !HeaderLocked)
+                {
+                    HideHeader(force: true);
+                    return;
+                }
+
                 if (_navigationStack.Count > 0)
                 {
                     BackButton_Click(this, new RoutedEventArgs());
