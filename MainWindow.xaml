@@ -363,6 +363,10 @@
                     <!-- SETTINGS SWITCHERS (Segmented visual buttons) -->
                     <Border Style="{StaticResource FluentCardStyle}" Margin="0,0,0,16" Padding="14,10">
                         <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/> <!-- Folder Type -->
                                 <ColumnDefinition Width="*"/>
@@ -410,6 +414,19 @@
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton x:Name="ViewLabelsRadio" Content="Иконка + подпись" GroupName="ViewGroup" IsChecked="True" Style="{StaticResource SegmentedRadioStyle}" Click="ViewRadio_Click"/>
                                         <RadioButton x:Name="ViewIconsOnlyRadio" Content="Только крупные иконки" GroupName="ViewGroup" Style="{StaticResource SegmentedRadioStyle}" Click="ViewRadio_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- 4. Icon Size Tabs -->
+                            <StackPanel Grid.Row="1" Grid.ColumnSpan="5" Margin="0,10,0,0">
+                                <TextBlock Text="РАЗМЕР ЗНАЧКОВ" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextTertiaryBrush}" Margin="0,0,0,6"/>
+                                <Border CornerRadius="8" Background="{StaticResource SubtleCardBgBrush}" Padding="2" HorizontalAlignment="Left">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton x:Name="ScaleAutoRadio" Content="Авто по панели" GroupName="ScaleGroup" Style="{StaticResource SegmentedRadioStyle}" Click="ScaleRadio_Click"/>
+                                        <RadioButton x:Name="ScaleLargeRadio" Content="Крупные" GroupName="ScaleGroup" Style="{StaticResource SegmentedRadioStyle}" Click="ScaleRadio_Click"/>
+                                        <RadioButton x:Name="ScaleMediumRadio" Content="Средние" GroupName="ScaleGroup" Style="{StaticResource SegmentedRadioStyle}" Click="ScaleRadio_Click"/>
+                                        <RadioButton x:Name="ScaleSmallRadio" Content="Мелкие" GroupName="ScaleGroup" Style="{StaticResource SegmentedRadioStyle}" Click="ScaleRadio_Click"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -475,6 +492,76 @@
                                             Click="AddItemUrl_Click"/>
                                 </StackPanel>
                             </Grid>
+
+                            <!-- Pinned shortcuts strip: drag one onto the ➕ card to add it -->
+                            <Border x:Name="PinnedStripCard" CornerRadius="10" Background="#0EFFFFFF" Padding="8,6" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="ЗАКРЕПЛЁННЫЕ ЗНАЧКИ — ПЕРЕТАЩИТЕ НА ➕"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextTertiaryBrush}"
+                                               Margin="2,0,0,6"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button x:Name="PinnedStripLeft"
+                                                Grid.Column="0"
+                                                Content="‹"
+                                                FontSize="18"
+                                                Width="24" Height="38"
+                                                Margin="0,0,4,0"
+                                                Style="{StaticResource SubtleIconButtonStyle}"
+                                                Click="PinnedStripLeft_Click"
+                                                ToolTip="Прокрутить влево"/>
+
+                                        <ScrollViewer x:Name="PinnedStripScroll"
+                                                      Grid.Column="1"
+                                                      HorizontalScrollBarVisibility="Hidden"
+                                                      VerticalScrollBarVisibility="Disabled"
+                                                      PanningMode="HorizontalOnly"
+                                                      ScrollChanged="PinnedStripScroll_ScrollChanged"
+                                                      PreviewMouseWheel="PinnedStrip_PreviewMouseWheel">
+                                            <ItemsControl x:Name="PinnedStrip">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Width="38" Height="38"
+                                                                CornerRadius="8"
+                                                                Margin="2"
+                                                                Background="Transparent"
+                                                                Cursor="Hand"
+                                                                ToolTip="{Binding Name}"
+                                                                PreviewMouseLeftButtonDown="PinnedItem_MouseLeftButtonDown"
+                                                                PreviewMouseMove="PinnedItem_MouseMove">
+                                                            <Image Source="{Binding Icon}"
+                                                                   Width="24" Height="24"
+                                                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+
+                                        <Button x:Name="PinnedStripRight"
+                                                Grid.Column="2"
+                                                Content="›"
+                                                FontSize="18"
+                                                Width="24" Height="38"
+                                                Margin="4,0,0,0"
+                                                Style="{StaticResource SubtleIconButtonStyle}"
+                                                Click="PinnedStripRight_Click"
+                                                ToolTip="Прокрутить вправо"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
 
                             <!-- Interactive Live Grid -->
                             <WrapPanel x:Name="LiveItemsWrapPanel" Margin="0,0,0,8">

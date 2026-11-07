@@ -61,6 +61,7 @@ namespace TrayFolderFlyout
         private Border? _draggedCard;
         private FolderItem? _draggedItem;
         private Point _dragStartPoint;
+        private Point _pinnedDragStart;
 
         public MainWindow(string? selectGroupId = null)
         {
@@ -76,6 +77,96 @@ namespace TrayFolderFlyout
             Closing += MainWindow_Closing;
         }
 
+        /// <summary>Item of the pinned-shortcuts strip above the live preview.</summary>
+        private class PinnedStripItem
+        {
+            public string Name { get; init; } = "";
+            public string Path { get; init; } = "";
+            public ImageSource? Icon { get; init; }
+        }
+
+        private void LoadPinnedStrip()
+        {
+            try
+            {
+                var items = PinnedShortcutsService.Load()
+                    .Select(p => new PinnedStripItem
+                    {
+                        Name = p.Name,
+                        Path = p.Path,
+                        Icon = IconService.GetIcon(p.Path, null, 32)
+                    })
+                    .ToList();
+
+                PinnedStrip.ItemsSource = items;
+                PinnedStripCard.Visibility = items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+                // Layout has to settle before the arrows can decide whether they are needed.
+                Dispatcher.BeginInvoke(new Action(UpdatePinnedStripButtons), System.Windows.Threading.DispatcherPriority.Loaded);
+            }
+            catch
+            {
+                PinnedStripCard.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void PinnedStripLeft_Click(object sender, RoutedEventArgs e) => ScrollPinnedStrip(-1);
+
+        private void PinnedStripRight_Click(object sender, RoutedEventArgs e) => ScrollPinnedStrip(1);
+
+        private void PinnedStripScroll_ScrollChanged(object sender, ScrollChangedEventArgs e) => UpdatePinnedStripButtons();
+
+        private void ScrollPinnedStrip(int direction)
+        {
+            double page = Math.Max(120, PinnedStripScroll.ViewportWidth * 0.8);
+            PinnedStripScroll.ScrollToHorizontalOffset(PinnedStripScroll.HorizontalOffset + direction * page);
+        }
+
+        /// <summary>The theme's ScrollBar has no horizontal template, so the strip ships its own arrows.</summary>
+        private void UpdatePinnedStripButtons()
+        {
+            if (PinnedStripLeft == null || PinnedStripRight == null) return;
+
+            bool canScroll = PinnedStripScroll.ScrollableWidth > 0.5;
+            PinnedStripLeft.Visibility = canScroll ? Visibility.Visible : Visibility.Collapsed;
+            PinnedStripRight.Visibility = canScroll ? Visibility.Visible : Visibility.Collapsed;
+
+            PinnedStripLeft.IsEnabled = PinnedStripScroll.HorizontalOffset > 0.5;
+            PinnedStripRight.IsEnabled = PinnedStripScroll.HorizontalOffset < PinnedStripScroll.ScrollableWidth - 0.5;
+        }
+
+        /// <summary>The strip has no vertical extent, so the wheel is redirected to horizontal scrolling.</summary>
+        private void PinnedStrip_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (PinnedStripScroll.ScrollableWidth <= 0) return;
+
+            PinnedStripScroll.ScrollToHorizontalOffset(PinnedStripScroll.HorizontalOffset - e.Delta);
+            e.Handled = true;
+        }
+
+        private void PinnedItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _pinnedDragStart = e.GetPosition(this);
+        }
+
+        private void PinnedItem_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+
+            Point pos = e.GetPosition(this);
+            if (Math.Abs(pos.X - _pinnedDragStart.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(pos.Y - _pinnedDragStart.Y) < SystemParameters.MinimumVerticalDragDistance)
+            {
+                return;
+            }
+
+            if (sender is FrameworkElement element && element.DataContext is PinnedStripItem item)
+            {
+                // The dashed ➕ card already accepts FileDrop, so a pinned icon is just another file drop.
+                DragDrop.DoDragDrop(element, new DataObject(DataFormats.FileDrop, new[] { item.Path }), DragDropEffects.Copy);
+            }
+        }
+
         private void MainWindow_SourceInitialized(object? sender, EventArgs e)
         {
             var hwnd = new WindowInteropHelper(this).Handle;
@@ -86,6 +177,7 @@ namespace TrayFolderFlyout
         {
             AutoRunCheckBox.IsChecked = AutoRunService.IsAutoRunEnabled();
             RefreshGroupsList();
+            LoadPinnedStrip();
 
             if (!string.IsNullOrEmpty(_initialSelectGroupId))
             {
@@ -174,6 +266,12 @@ namespace TrayFolderFlyout
                 // View Mode Radio
                 ViewLabelsRadio.IsChecked = _selectedGroup.ShowLabels;
                 ViewIconsOnlyRadio.IsChecked = !_selectedGroup.ShowLabels;
+
+                // Icon scale Radio
+                ScaleAutoRadio.IsChecked = _selectedGroup.IconScale == FlyoutIconScale.Auto;
+                ScaleLargeRadio.IsChecked = _selectedGroup.IconScale == FlyoutIconScale.Large;
+                ScaleMediumRadio.IsChecked = _selectedGroup.IconScale == FlyoutIconScale.Medium;
+                ScaleSmallRadio.IsChecked = _selectedGroup.IconScale == FlyoutIconScale.Small;
 
                 RefreshLiveCanvas();
             }
@@ -696,6 +794,19 @@ namespace TrayFolderFlyout
             if (_isUpdatingUi || _selectedGroup == null) return;
 
             _selectedGroup.ShowLabels = ViewLabelsRadio.IsChecked == true;
+            SaveConfig();
+            RefreshLiveCanvas();
+        }
+
+        private void ScaleRadio_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isUpdatingUi || _selectedGroup == null) return;
+
+            if (ScaleLargeRadio.IsChecked == true) _selectedGroup.IconScale = FlyoutIconScale.Large;
+            else if (ScaleMediumRadio.IsChecked == true) _selectedGroup.IconScale = FlyoutIconScale.Medium;
+            else if (ScaleSmallRadio.IsChecked == true) _selectedGroup.IconScale = FlyoutIconScale.Small;
+            else _selectedGroup.IconScale = FlyoutIconScale.Auto;
+
             SaveConfig();
             RefreshLiveCanvas();
         }

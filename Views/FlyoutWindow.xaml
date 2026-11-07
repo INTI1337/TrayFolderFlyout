@@ -10,6 +10,7 @@
         Topmost="True"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
+        UseLayoutRounding="True"
         AllowDrop="True"
         DragEnter="Window_DragEnter"
         DragOver="Window_DragOver"
@@ -18,7 +19,7 @@
         Deactivated="Window_Deactivated"
         KeyDown="Window_KeyDown">
 
-    <Grid x:Name="RootGrid" Margin="12">
+    <Grid x:Name="RootGrid" Margin="12,12,12,0">
         <Grid.RenderTransform>
             <TranslateTransform x:Name="FlyoutTransform" Y="10"/>
         </Grid.RenderTransform>
@@ -27,12 +28,13 @@
         <Border x:Name="MainBorder"
                 CornerRadius="12"
                 BorderThickness="1"
-                BorderBrush="{StaticResource GlassBorderStrongBrush}"
+                BorderBrush="#1EFFFFFF"
+                SnapsToDevicePixels="True"
                 Background="#E618181B"
                 Padding="12"
                 ContextMenuOpening="MainBorder_ContextMenuOpening">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.45" Direction="270" Color="#000000"/>
+                <DropShadowEffect BlurRadius="14" ShadowDepth="3" Opacity="0.32" Direction="270" Color="#000000"/>
             </Border.Effect>
 
             <!-- Background Context Menu -->
@@ -41,6 +43,7 @@
                     <MenuItem Header="➕ Добавить файл..." Click="MenuAddFile_Click"/>
                     <MenuItem Header="📁 Добавить папку..." Click="MenuAddFolder_Click"/>
                     <MenuItem Header="🌐 Добавить ссылку (URL)..." Click="MenuAddUrl_Click"/>
+                    <MenuItem Header="📌 Добавить закреплённый значок..." Click="MenuAddPinned_Click"/>
                     <Separator/>
                     <MenuItem Header="🎨 Сменить иконку папки..." Click="MenuChangeIcon_Click"/>
                     <MenuItem Header="⚙️ Настроить эту папку в Менеджере" Click="MenuConfigure_Click"/>
@@ -49,7 +52,7 @@
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="10"/> <!-- Thin strip: click to reveal the header -->
+                    <RowDefinition x:Name="TopGripRow" Height="10"/> <!-- Thin strip: click to reveal the header -->
                     <RowDefinition Height="*"/>  <!-- Items Grid -->
                 </Grid.RowDefinitions>
 
@@ -165,7 +168,7 @@
                                         Width="{Binding CardWidth}"
                                         Height="{Binding CardHeight}"
                                         Padding="2"
-                                        Margin="2"
+                                        Margin="{Binding CardMargin}"
                                         Click="Item_Click"
                                         MouseRightButtonUp="Item_RightClick"
                                         MouseDown="Item_MouseDown"
@@ -189,13 +192,13 @@
                                                    Text="{Binding Name}"
                                                    Visibility="{Binding LabelVisibility}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
-                                                   FontSize="11"
+                                                   FontSize="{Binding LabelFontSize}"
                                                    FontFamily="Segoe UI Variable Text, Segoe UI"
                                                    TextAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    TextTrimming="CharacterEllipsis"
-                                                   MaxHeight="28"
-                                                   LineHeight="14"
+                                                   MaxHeight="{Binding LabelMaxHeight}"
+                                                   LineHeight="{Binding LabelLineHeight}"
                                                    Margin="0,3,0,0"/>
                                     </Grid>
 

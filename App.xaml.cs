@@ -252,12 +252,17 @@ namespace TrayFolderFlyout
                         }
 
                         Log("ToggleFlyout: showing flyout");
-                        _flyoutWindow.ShowFlyout(msg.GroupId, msg.CursorX, msg.CursorY);
+
+                        // Cursor position is measured here, in the long-lived and DPI-aware process.
+                        // A freshly started client is still DPI-unaware when it calls GetCursorPos,
+                        // so its coordinates arrive divided by the scale factor and land the flyout
+                        // ~177 DIP off on a 150% display.
+                        _flyoutWindow.ShowFlyout(msg.GroupId);
                     }
                     else if (msg.Action.Equals("OpenFlyout", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(msg.GroupId))
                     {
                         _flyoutWindow ??= new FlyoutWindow();
-                        _flyoutWindow.ShowFlyout(msg.GroupId, msg.CursorX, msg.CursorY);
+                        _flyoutWindow.ShowFlyout(msg.GroupId);
                     }
                     else if (msg.Action.Equals("CloseFlyout", StringComparison.OrdinalIgnoreCase))
                     {

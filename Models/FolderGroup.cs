@@ -12,6 +12,7 @@ namespace TrayFolderFlyout.Models
         public string? CustomIconPath { get; set; }
         public int Columns { get; set; } = 4;
         public bool ShowLabels { get; set; } = true;
+        public FlyoutIconScale IconScale { get; set; } = FlyoutIconScale.Auto;
         public List<FolderItem> Items { get; set; } = new List<FolderItem>();
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

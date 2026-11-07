@@ -40,6 +40,7 @@ namespace TrayFolderFlyout.Views
 
         private bool _isHeaderOpen;
         private DispatcherTimer? _headerAutoHideTimer;
+        private FlyoutMetrics _metrics = FlyoutMetrics.For(FlyoutIconScale.Large);
 
         public FlyoutWindow(string? initialGroupId = null)
         {
@@ -90,6 +91,7 @@ namespace TrayFolderFlyout.Views
             }
 
             _group = group;
+            UpdateMetrics();
             UpdateHeader(_group.Name, _group.CustomIconPath);
             LoadCurrentView();
 
@@ -298,6 +300,7 @@ namespace TrayFolderFlyout.Views
             if (updated != null)
             {
                 _group = updated;
+                UpdateMetrics();
                 UpdateHeader(_group.Name, _group.CustomIconPath);
                 LoadCurrentView();
 
@@ -341,7 +344,7 @@ namespace TrayFolderFlyout.Views
             {
                 foreach (var item in _group.Items)
                 {
-                    _items.Add(new FlyoutItemViewModel(item, showLabels));
+                    _items.Add(new FlyoutItemViewModel(item, showLabels, _metrics));
                 }
             }
 
@@ -363,7 +366,7 @@ namespace TrayFolderFlyout.Views
                     {
                         Name = d.Name,
                         TargetPath = d.FullName
-                    }, showLabels));
+                    }, showLabels, _metrics));
                 }
 
                 var files = Directory.GetFiles(dirPath)
@@ -382,7 +385,7 @@ namespace TrayFolderFlyout.Views
                     {
                         Name = displayName,
                         TargetPath = f.FullName
-                    }, showLabels));
+                    }, showLabels, _metrics));
                 }
             }
             catch { }
@@ -419,8 +422,9 @@ namespace TrayFolderFlyout.Views
             double left = cursorXDip - (flyoutWidth / 2.0);
             left = Math.Max(screenLeftDip + 12.0, Math.Min(left, screenRightDip - flyoutWidth - 12.0));
 
-            // Position 12px above taskbar
-            double top = screenBottomDip - flyoutHeight - 12.0;
+            // Flush against the work area: the bottom shadow margin is gone, so the panel sits
+            // right on the taskbar the way native flyouts do.
+            double top = screenBottomDip - flyoutHeight;
             if (top < screenTopDip + 12.0)
             {
                 top = screenTopDip + 12.0;
@@ -428,6 +432,8 @@ namespace TrayFolderFlyout.Views
 
             Left = left;
             Top = top;
+
+            App.Log($"POS: cursor={pt.X},{pt.Y} dpi={dpiScaleX:0.##}x{dpiScaleY:0.##} work={workArea.Left},{workArea.Top},{workArea.Right},{workArea.Bottom} size={flyoutWidth:0.#}x{flyoutHeight:0.#} -> left={Left:0.#} top={Top:0.#}");
         }
 
         private void PlayEnterAnimation()
@@ -703,6 +709,26 @@ namespace TrayFolderFlyout.Views
             }
         }
 
+        private void MenuAddPinned_Click(object sender, RoutedEventArgs e)
+        {
+            _isModalOpen = true;
+            try
+            {
+                var dlg = new PinnedItemsDialog { Owner = this };
+                if (dlg.ShowDialog() == true)
+                {
+                    foreach (string path in dlg.SelectedPaths)
+                    {
+                        AddItemToGroup(path);
+                    }
+                }
+            }
+            finally
+            {
+                _isModalOpen = false;
+            }
+        }
+
         private void MenuAddUrl_Click(object sender, RoutedEventArgs e)
         {
             _isModalOpen = true;
@@ -843,6 +869,51 @@ namespace TrayFolderFlyout.Views
         private void ContextMenu_Opened(object sender, RoutedEventArgs e) => _isMenuOpen = true;
         private void ContextMenu_Closed(object sender, RoutedEventArgs e) => _isMenuOpen = false;
         private void MainBorder_ContextMenuOpening(object sender, ContextMenuEventArgs e) => _isMenuOpen = true;
+
+        /// <summary>Resolves the requested scale (Auto follows the taskbar) and applies the chrome sizes.</summary>
+        private void UpdateMetrics()
+        {
+            var requested = _group?.IconScale ?? FlyoutIconScale.Auto;
+            var scale = requested == FlyoutIconScale.Auto
+                ? FlyoutMetrics.FromTaskbarHeight(GetTaskbarHeightDip())
+                : requested;
+
+            _metrics = FlyoutMetrics.For(scale);
+
+            MainBorder.Padding = new Thickness(_metrics.WindowPadding);
+            TopGripRow.Height = new GridLength(_metrics.StripHeight);
+        }
+
+        /// <summary>Taskbar thickness in DIP for the monitor the cursor is on (any of the four edges).</summary>
+        private double GetTaskbarHeightDip()
+        {
+            try
+            {
+                var pt = new POINT { X = _lastCursorX, Y = _lastCursorY };
+                if (_lastCursorX == 0 && _lastCursorY == 0)
+                {
+                    Win32.GetCursorPos(out pt);
+                }
+
+                if (!Win32.GetMonitorAndWorkArea(pt, out RECT monitor, out RECT work))
+                {
+                    return 48;
+                }
+
+                int px = Math.Max(
+                    Math.Max(work.Left - monitor.Left, monitor.Right - work.Right),
+                    Math.Max(work.Top - monitor.Top, monitor.Bottom - work.Bottom));
+
+                var source = PresentationSource.FromVisual(this);
+                double scaleY = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
+
+                return px > 0 ? px / scaleY : 48;
+            }
+            catch
+            {
+                return 48;
+            }
+        }
 
         private static FlyoutItemViewModel? GetContextItem(object sender)
         {
