@@ -93,6 +93,46 @@ namespace TrayFolderFlyout.Native
             }
         }
 
+        /// <summary>True when the shortcut launches our own application binary.</summary>
+        public static bool IsTargetingApp(string shortcutPath)
+        {
+            try
+            {
+                var details = ResolveShortcut(shortcutPath);
+                if (details == null) return false;
+
+                string fileName = Path.GetFileName(details.TargetPath);
+                return fileName.Equals("TrayFolderFlyout.exe", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Rewrites only the target (and working directory), keeping icon, arguments and AUMID.</summary>
+        public static bool UpdateShortcutTarget(string shortcutPath, string targetExePath)
+        {
+            try
+            {
+                if (!File.Exists(shortcutPath) || !File.Exists(targetExePath)) return false;
+
+                var link = (IShellLinkW)new ShellLink();
+                var persistFile = (IPersistFile)link;
+                persistFile.Load(shortcutPath, 0);
+
+                link.SetPath(targetExePath);
+                link.SetWorkingDirectory(Path.GetDirectoryName(targetExePath) ?? "");
+
+                persistFile.Save(shortcutPath, false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public class ShortcutDetails
         {
             public string TargetPath { get; set; } = "";

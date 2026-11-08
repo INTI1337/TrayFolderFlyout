@@ -38,4 +38,11 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="TrayFolderFlyout.Launcher\**" />
+    <Page Remove="TrayFolderFlyout.Launcher\**" />
+    <Resource Remove="TrayFolderFlyout.Launcher\**" />
+    <None Remove="TrayFolderFlyout.Launcher\**" />
+  </ItemGroup>
+
 </Project>

@@ -21,6 +21,36 @@ namespace TrayFolderFlyout.Services
         public string ConfigFilePath { get; }
         public bool IsPortableMode { get; }
 
+        /// <summary>
+        /// Path to the tiny NativeAOT launcher that pinned shortcuts should point at.
+        /// Empty when it is not shipped next to the app (developer builds, single-exe portable).
+        /// </summary>
+        public static string LauncherExePath
+        {
+            get
+            {
+                try
+                {
+                    string? self = Environment.ProcessPath;
+                    if (string.IsNullOrEmpty(self))
+                    {
+                        self = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                    }
+                    if (string.IsNullOrEmpty(self)) return "";
+
+                    string? dir = Path.GetDirectoryName(self);
+                    if (string.IsNullOrEmpty(dir)) return "";
+
+                    string candidate = Path.Combine(dir, "TrayFolderFlyout.Launcher.exe");
+                    return File.Exists(candidate) ? candidate : "";
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+        }
+
         private bool _repairDone = false;
 
         private readonly JsonSerializerOptions _jsonOptions = new()
@@ -324,7 +354,17 @@ namespace TrayFolderFlyout.Services
                         string? args = ShellShortcutHelper.GetShortcutArguments(lnk);
                         if (args != null && args.Contains(groupId, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (ShellShortcutHelper.UpdateShortcutIcon(lnk, newIconPath))
+                            bool changed = ShellShortcutHelper.UpdateShortcutIcon(lnk, newIconPath);
+
+                            // Already-pinned shortcuts keep pointing at the app exe unless we retarget them.
+                            // Only touch shortcuts that launch our own binary, never foreign ones.
+                            string launcher = LauncherExePath;
+                            if (!string.IsNullOrEmpty(launcher) && ShellShortcutHelper.IsTargetingApp(lnk))
+                            {
+                                changed |= ShellShortcutHelper.UpdateShortcutTarget(lnk, launcher);
+                            }
+
+                            if (changed)
                             {
                                 File.SetLastWriteTimeUtc(lnk, DateTime.UtcNow);
                                 Win32.NotifyShellIconChange(lnk);
@@ -465,10 +505,16 @@ namespace TrayFolderFlyout.Services
 
         public string CreateTaskbarShortcut(FolderGroup group, List<FolderGroup>? allGroups = null, bool copyToDesktop = false)
         {
-            string processExe = Environment.ProcessPath ?? "";
+            // Prefer the tiny NativeAOT launcher: a click becomes one IPC message in a few ms
+            // instead of paying for a full WPF process start. Falls back to this exe when absent.
+            string processExe = LauncherExePath;
             if (string.IsNullOrEmpty(processExe))
             {
-                processExe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
+                processExe = Environment.ProcessPath ?? "";
+                if (string.IsNullOrEmpty(processExe))
+                {
+                    processExe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName ?? "";
+                }
             }
 
             // Remove any old shortcuts pointing to this group ID (e.g. if name or Braille index changed)
