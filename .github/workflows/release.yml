@@ -47,6 +47,7 @@ jobs:
           Copy-Item ./Publish/App/TrayFolderFlyout.exe ./Release/portable/
           Copy-Item ./Publish/App/TrayFolderFlyout.Launcher.exe ./Release/portable/
           Compress-Archive -Path ./Release/portable/* -DestinationPath ./Release/TrayFolderFlyout_Portable.zip -Force
+          Copy-Item ./Release/TrayFolderFlyout_Portable.zip ./Release/TrayFolderFlyout_v1.2.0_Portable_win64.zip
 
       - name: Build Setup Installer
         shell: pwsh
@@ -74,6 +75,7 @@ jobs:
             ./Release/TrayFolderFlyout_Setup.exe
             ./Release/TrayFolderFlyout_Portable.exe
             ./Release/TrayFolderFlyout_Portable.zip
+            ./Release/TrayFolderFlyout_v1.2.0_Portable_win64.zip
 
       - name: VirusTotal Analysis
         if: env.VT_API_KEY != ''
@@ -86,7 +88,20 @@ jobs:
             ./Release/TrayFolderFlyout_Setup.exe
             ./Release/TrayFolderFlyout_Portable.exe
             ./Release/TrayFolderFlyout_Portable.zip
+            ./Release/TrayFolderFlyout_v1.2.0_Portable_win64.zip
           update_release_body: true
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Release-Binaries-v1.2.0
+          path: |
+            ./Publish/App/TrayFolderFlyout.exe
+            ./Publish/App/TrayFolderFlyout.Launcher.exe
+            ./Release/TrayFolderFlyout_Setup.exe
+            ./Release/TrayFolderFlyout_Portable.zip
+            ./Release/TrayFolderFlyout_v1.2.0_Portable_win64.zip
+            ./Release/checksums_sha256.txt
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -95,5 +110,6 @@ jobs:
             ./Release/TrayFolderFlyout_Setup.exe
             ./Release/TrayFolderFlyout_Portable.exe
             ./Release/TrayFolderFlyout_Portable.zip
+            ./Release/TrayFolderFlyout_v1.2.0_Portable_win64.zip
             ./Release/checksums_sha256.txt
           generate_release_notes: true

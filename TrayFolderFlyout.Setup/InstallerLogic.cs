@@ -12,8 +12,8 @@ namespace TrayFolderFlyout.Setup
 {
     public static class InstallerLogic
     {
-        public const string AppVersion = "v1.1.0";
-        public const string DisplayVersion = "1.1.0";
+        public const string AppVersion = "v1.2.0";
+        public const string DisplayVersion = "1.2.0";
 
         public static string InstallDirectory => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),

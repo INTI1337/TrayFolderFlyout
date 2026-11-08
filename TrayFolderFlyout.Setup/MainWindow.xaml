@@ -193,7 +193,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock x:Name="HeaderTitleText" Text="Установка TrayFolderFlyout" Foreground="#F4F4F5" FontSize="16" FontWeight="SemiBold"/>
                     <Border Background="#27272A" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                        <TextBlock x:Name="VersionText" Text="v1.1.0" Foreground="#A1A1AA" FontSize="11" FontWeight="Bold"/>
+                        <TextBlock x:Name="VersionText" Text="v1.2.0" Foreground="#A1A1AA" FontSize="11" FontWeight="Bold"/>
                     </Border>
                 </StackPanel>
 

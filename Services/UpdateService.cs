@@ -16,7 +16,7 @@ namespace TrayFolderFlyout.Services
 
     public static class UpdateService
     {
-        public const string CurrentVersion = "v1.1.0";
+        public const string CurrentVersion = "v1.2.0";
         private const string ApiUrl = "https://api.github.com/repos/INTI1337/TrayFolderFlyout/releases/latest";
 
         public static async Task<UpdateInfo> CheckForUpdatesAsync()
