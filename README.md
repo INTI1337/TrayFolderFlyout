@@ -65,7 +65,10 @@
 | **Кастомные иконки в панели задач** | **🎨 10 градиентных сквирклов + любые .ico/.png/.exe** | ❌ Стандартная желтая папка | ⚠️ Только оригинальная иконка программы |
 | **«Безымянные папки» (Clean Look)** | **🫥 Да (символ Брайля, чистая иконка без подписи)** | ❌ Невозможно без хаков | ❌ Всегда отображается имя файла |
 | **Любое положение панели задач** | **🧭 Снизу, сверху, слева, справа (авто-привязка)** | ❌ — | ❌ — |
-| **Сворачиваемый заголовок (Collapsible)** | **🖼️ Да (выезжает по hover 10px, убирается по Esc)** | ❌ Нет | ❌ — |
+| **Сворачиваемый заголовок (Collapsible)** | **🖼️ Да (выезжает по hover 10px, убирается по Esc / уводу курсора)** | ❌ Нет | ❌ — |
+| **Пресеты плотности и масштаба** | **📐 Да (Крупные, Средние, Мелкие, Авто по панели)** | ❌ Нет | ❌ — |
+| **Закреплённые системные ярлыки** | **📌 Да (Импорт из Taskbar и Пуск в 2 клика / Drag-and-Drop)** | ❌ — | ⚠️ Ограничено |
+| **HiDPI Pixel-Perfect прижатие** | **🎯 Да (Вплотную к таскбару, граница ровно в 1 физ. пиксель)** | ❌ — | ❌ — |
 | **Автономность ярлыков** | **📦 Да (копирование в `SavedLinks`)** | ❌ Нет *(удалил оригинал — ярлык сломался)* | ❌ Нет |
 | **Интеллектуальное автовосстановление** | **🩹 Да (`Auto-Heal` при перемещении файлов)** | ❌ Нет | ❌ Нет |
 | **Smart Portable режим** | **💼 Да (хранение данных в `UserData`, 0 следов в системе)** | ❌ — | ❌ — |
@@ -130,20 +133,21 @@
 - **Архитектура Single-Instance Daemon**: приложение непрерывно работает в фоне как легковесный фоновый процесс (0% CPU, минимум памяти). Если служба не запущена, лаунчер прозрачно передаёт запуск основному процессу.
 
 ### 🖼️ 2. Сворачиваемый заголовок (Collapsible Header)
-- Плашка папки не занимает лишнее место на экране и прячется в компактный оверлей.
-- Заголовок плавно выезжает при наведении курсора на верхнюю кромку (10px) и мгновенно убирается по нажатию клавиши `Esc`.
+- **Сворачиваемый заголовок-оверлей**: не крадёт полезное место в окне и скрывается поверх содержимого, оставляя чистую минималистичную сетку иконок.
+- Заголовок плавно выезжает при наведении курсора мыши на верхнюю кромку (10px) и закрывается по нажатию клавиши `Esc` либо при уводе курсора.
 
-### 📐 3. Пресеты значков с автоподгонкой
-- Автоматическое масштабирование иконок под высоту и расположение панели задач на текущем мониторе.
-- Адаптивная плотность сетки для комфортного отображения любого количества ярлыков.
+### 📐 3. Пресеты плотности и размеров значков (Dynamic Density Presets)
+- **4 пресета масштабирования**: «Авто по панели», «Крупные» (80px), «Средние» (64px) и «Мелкие» (48px).
+- В режиме «Авто по панели» размер значков, карточек и шрифтов адаптивно подстраивается под высоту Taskbar на активном мониторе (идеально для ноутбуков и ультрашироких 4K-дисплеев).
 
-### 📌 4. Поддержка системных ярлыков
-- Возможность добавлять в папки любые закреплённые ярлыки прямо из панели задач Windows 11 и системного меню «Пуск».
-- Автоматическое разрешение путей к целевым исполняемым файлам и приложениям.
+### 📌 4. Закреплённые системные ярлыки (Pinned Taskbar & Start Menu Shortcuts)
+- **Быстрый импорт системных приложений в пару кликов**: добавление закреплённых программ напрямую из панели задач Windows 11 и системного меню «Пуск».
+- Доступно через контекстное меню («Добавить закреплённый значок...») и интерактивную горизонтальную ленту с Drag-and-Drop в окне настроек.
 
-### 🎯 5. Pixel-perfect HiDPI и точное позиционирование
-- Прижатие флайаута вплотную к панели задач с рамкой толщиной ровно в 1 физический пиксель без артефактов и смазывания на системных масштабах 125%, 150% и 200%.
-- Автоматическое определение любого положения панели задач (снизу, сверху, слева или справа) с соблюдением рабочих границ экрана.
+### 🎯 5. HiDPI Pixel-Perfect Alignment и точная привязка
+- **Прижатие вплотную к панели задач**: ликвидированы нежелательные зазоры в 24 DIP — флайаут пристыковывается в точности как системные меню Windows 11.
+- **Субпиксельная чёткость границ**: контрастная обводка толщиной ровно в 1 физический пиксель с аппаратным выравниванием (`SnapsToDevicePixels`), исключающая размытие при масштабировании экрана 125%, 150% или 200%.
+- Поддержка любого расположения панели задач (снизу, сверху, слева или справа) с автоопределением рабочих границ монитора.
 
 ### 🎨 6. Кастомные иконки и 10 сочных градиентных пресетов
 - 10 встроенных дизайнерских сквирклов в стилистике Fluent Design: «Игры», «Работа», «Система», «Медиа», «Код», «Дизайн», «Интернет», «Офис», «Безопасность», «Папка».
@@ -215,12 +219,12 @@ TrayFolderFlyout/
 │   ├── workflows/release.yml      # CI/CD автоматическая сборка, аттестация и релизы
 │   └── ISSUE_TEMPLATE/            # Шаблоны баг-репортов и предложений
 ├── Assets/                        # Иконка приложения (256x256 Bento grid) и стили
-├── Models/                        # Доменные модели (AppConfig, FolderGroup, FolderItem)
-├── Native/                        # Win32 P/Invoke, COM IShellLinkW, IShellItemImageFactory
-├── Services/                      # Сервисы IpcService, ConfigService, IconService, TrayService
+├── Models/                        # Доменные модели (AppConfig, FolderGroup, FlyoutMetrics, FlyoutIconScale)
+├── Native/                        # Win32 P/Invoke, AppBar, COM IShellLinkW, IShellItemImageFactory
+├── Services/                      # Сервисы IpcService, ConfigService, IconService, PinnedShortcutsService
 ├── Styles/                        # Стили Fluent Dark, шаблоны элементов управления
 ├── ViewModels/                    # MVVM связка для реактивного интерфейса
-├── Views/                         # FlyoutWindow (попап), IconPickerWindow, InputDialog
+├── Views/                         # FlyoutWindow (попап), PinnedItemsDialog, IconPickerWindow, InputDialog
 ├── TrayFolderFlyout.Launcher/     # Сверхбыстрый NativeAOT лаунчер для закреплённых ярлыков (~1.9 МБ)
 │   ├── Program.cs                 # Отправка IPC за ~12 мс и запуск хоста
 │   └── TrayFolderFlyout.Launcher.csproj
@@ -229,7 +233,7 @@ TrayFolderFlyout/
 │   ├── InstallerLogic.cs          # Распаковка, реестр, автозагрузка, деинсталлятор
 │   └── ShortcutHelper.cs          # Создание ярлыков Windows Shell
 ├── App.xaml / App.xaml.cs         # Точка входа, Single Instance Mutex, диспетчер IPC
-├── MainWindow.xaml                # Менеджер папок и визуальный редактор
+├── MainWindow.xaml                # Менеджер папок, визуальный редактор и лента закреплённых значков
 └── TrayFolderFlyout.csproj        # Спецификация сборки .NET 8 WPF
 ```
 
@@ -237,7 +241,7 @@ TrayFolderFlyout/
 
 ## 🤝 Благодарности / Contributors
 
-Огромный респект [@hardway777](https://github.com/hardway777) за разработку легковесного NativeAOT-лаунчера (`TrayFolderFlyout.Launcher`), сжатие отклика клика в 16 раз (с ~456 мс до ~28 мс), поддержку закреплённых ярлыков и глубокую полировку оверлея под HiDPI-дисплеи.
+Огромный респект [@hardway777](https://github.com/hardway777) за архитектуру сверхбыстрого NativeAOT-лаунчера (`TrayFolderFlyout.Launcher`), сжатие отклика клика в 16 раз (с ~456 мс до ~28 мс), реализацию поддержки закреплённых системных ярлыков и глубокую UX/HiDPI переработку флайаута (сворачиваемый заголовок-оверлей, адаптивные пресеты плотности значков и субпиксельная чёткость границ).
 
 ---
 
@@ -251,10 +255,10 @@ TrayFolderFlyout/
 
 ### 🌟 Key Features
 - **⚡ Ultra-fast NativeAOT Launcher**: Dedicated NativeAOT binary (`TrayFolderFlyout.Launcher.exe`, ~1.9 MB) sends an IPC message via a named pipe in ~12 ms, slashing click-to-visible latency by 16x (from ~456 ms down to ~28 ms) without waiting for a cold WPF process boot.
-- **🖼️ Collapsible Header**: Clean, unobtrusive header overlays the folder when hovering over the top 10px edge and instantly tucks away with Esc.
-- **📐 Auto-Fitting Icon Presets**: Dynamic icon scaling that automatically adapts to the height and placement of the taskbar on the active monitor.
-- **📌 System & Pinned Shortcut Support**: Seamlessly organize and launch pinned shortcuts from the Windows 11 taskbar and Start Menu.
-- **🎯 Pixel-Perfect HiDPI**: Crisp 1-physical-pixel border alignment flush against the taskbar without scaling blur on 125%, 150%, or 200% displays.
+- **🖼️ Collapsible Header**: Clean, unobtrusive header overlay that smoothly slides down when hovering over the top 10px edge and instantly tucks away with Esc or when moving the cursor away.
+- **📐 Dynamic Density Presets**: 4 scaling presets (Auto to Taskbar, Large 80px, Medium 64px, Small 48px) that dynamically adapt icon scales, card padding, and font sizes to the active monitor's taskbar height.
+- **📌 Pinned Taskbar & Start Menu Shortcuts**: Seamlessly import and organize pinned applications directly from the Windows 11 taskbar and Start Menu in two clicks or via a visual drag-and-drop strip.
+- **🎯 HiDPI Pixel-Perfect Alignment**: Flush docking directly against the taskbar without artificial 24 DIP margins, framed with a sharp 1-physical-pixel border (`SnapsToDevicePixels`) that stays crisp across 125%, 150%, and 200% scaling.
 - **🧭 Multi-Orientation Taskbar Support**: Supports bottom, top, left, and right taskbar layouts with automatic 12px margin bounds clamping.
 - **🎨 Custom Squircle Presets & Icons**: Includes 10 colorful Fluent Design gradient squircle icons, or assign any custom `.ico`, `.png`, `.jpg`, or `.exe` file.
 - **🫥 Nameless Taskbar Folders**: Leave the folder name blank to create a clean, icon-only shortcut on your taskbar using an invisible Braille blank character (`\u2800`).
@@ -281,7 +285,7 @@ TrayFolderFlyout/
 
 ## 🤝 Special Thanks / Contributors
 
-Huge thanks to [@hardway777](https://github.com/hardway777) for engineering the ultra-fast NativeAOT launcher (`TrayFolderFlyout.Launcher`), reducing click latency by 16x (from ~456 ms down to ~28 ms), implementing pinned taskbar shortcut integration, and fine-tuning the flyout overlay for HiDPI screens.
+Huge thanks to [@hardway777](https://github.com/hardway777) for architecting the ultra-fast NativeAOT launcher (`TrayFolderFlyout.Launcher`), reducing click latency by 16x (from ~456 ms down to ~28 ms), implementing pinned taskbar shortcut integration, and delivering a deep UX/HiDPI overhaul of the flyout (collapsible header overlay, dynamic density presets, and pixel-perfect alignment).
 
 ---
 
